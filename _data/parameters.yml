@@ -1,0 +1,70 @@
+########################### Navigation ###################################
+menu:
+  # main menu
+  main:
+  - {name: Home, url: '/', icon: 'ti-home'}
+  - {name: About, url: '/about', icon: 'ti-user'}
+  - {name: Articles, url: '/articles', icon: 'ti-menu-alt'}
+  - {name: Contact, url: '/contact', icon: 'ti-email'}
+  - {name: Tools, url: '/tools', icon: 'ti-ruler-pencil'}
+
+##### Dropdown menu ######
+
+  # - name: dropdown
+  #   submenu:
+  #   - name : "d1"
+  #     url : "#"
+  #   - name : "d2"
+  #     url : "#"
+
+##########################
+
+  # # Footer menu
+  # footer:
+  # - {name: Home, url: '/'}
+  # - {name: Contact, url: '/contact'}
+  # - {name: Tools, url: '/tools'}
+
+
+######################### Default Parameters ###########################
+
+# logo
+logo : "/assets/images/logo.png"
+# meta data
+author : "Jawed Salim"
+description : "DevOps Engineer | Kubernetes | Terraform | AWS | Ansible | Docker | Python"
+# google analitycs ID
+google_analitycs_id : "" # your id
+# contact form action
+contact_form_action : "#" # contact form works with : https://formspree.io
+# copyright
+copyright : "Copyright &copy; 2022 Jawed Salim. Developed by [Getjekyllthemes](https://getjekyllthemes.com)"
+
+# preloader
+preloader:
+  enable : true
+  preloader : "" # use png, jpg, svg or gif format
+
+# search
+search:
+  enable : true
+
+############################## Social Site ##########################
+social:
+  - name : "linkedin"
+    icon : "ti-linkedin" # themify icon pack https://themify.me/themify-icons
+    link : "#"
+
+  - name : "github"
+    icon : "ti-github" # themify icon pack https://themify.me/themify-icons
+    link : "https://github.com/heyjawed"
+
+  - name : "facebook"
+    icon : "ti-facebook" # themify icon pack https://themify.me/themify-icons
+    link : "#"
+
+  - name : "twitter"
+    icon : "ti-twitter-alt" # themify icon pack https://themify.me/themify-icons
+    link : "#"
+
+

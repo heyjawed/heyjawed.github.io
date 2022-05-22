@@ -1,0 +1,38 @@
+---
+layout: default
+---
+
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-3">
+        <div class="nav nav-tab flex-column" role="tablist" aria-orientation="vertical">
+          {% for tooltab in page.tools %}
+          <a class="nav-link {% if forloop.first %} active {% endif %}" data-toggle="pill" href="#{{ tooltab.title | slugify }}" role="tab">{{ tooltab.title }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-9">
+        <div class="tab-content">
+          {% for tools in page.tools %}
+          <div class="tab-pane fade {% if forloop.first %} show active {% endif %}" id="{{ tools.title | slugify }}" role="tabpanel">
+            <div class="row">
+              {% for tool in tools.tool %}
+              <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow">
+                  <img src="{{ tool.image | relative_url }}" alt="{{ tool.name }}" class="card-img-top">
+                  <div class="card-body">
+                    <h4 class="h5 mb-4"><a class="text-dark" href="{{ tool.link }}">{{ tool.name }}</a></h4>
+                    <a href="{{ tool.link }}" class="btn btn-primary">Visit Site</a>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
