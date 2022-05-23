@@ -1,0 +1,42 @@
+---
+layout: default
+---
+
+<!-- about -->
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 mx-auto px-0">
+        <div class="bg-white shadow block">
+          {% for post in site.posts %}
+          {% include post.html %}
+          {% endfor %}
+          <!-- pagination -->
+          {% include pagination.html %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /about -->
+
+<!-- call_to_action -->
+<section class="section pt-0">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <div class="row shadow bg-white p-5">
+          <div class="col-md-4 text-center text-md-left mb-4 mb-lg-0">
+            <img src="{{ site.data.homepage.call_to_action.image | relative_url }}" class="mr-4" alt=""></div>
+          <div class="col-md-8 text-center text-md-left">
+            <h3 class="mt-0">title</h3>
+            <p>Description</p>
+            <a href="{{ site.data.homepage.call_to_action.button.link | relative_url }}"
+              class="btn btn-primary">{{ button }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /call_to_action -->
