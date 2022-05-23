@@ -2,7 +2,7 @@
 title : "My awesome second blog post"
 image : "/assets/images/post/post-2.jpg"
 author : "John Doe"
-date: 2020-08-08 11:12:58 +0600
+date: 2020-08-07 11:12:58 +0600
 description : "This is meta description"
 tags : ["Design Tools"]
 

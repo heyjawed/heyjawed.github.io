@@ -1,6 +1,9 @@
 ---
 layout: default
+permalink: /articles/
+title: Categories
 ---
+
 
 <!-- posts -->
 <section class="section">
@@ -8,14 +11,34 @@ layout: default
     <div class="row">
       <div class="col-lg-10 mx-auto px-0">
         <div class="bg-white shadow block">
-          {% for post in site.posts %}
-            {% include post.html %}
+          <h2>Articles by categories</h2>
+          <hr>
+          {% for tag in site.tags %}
+            <div class="archive-group">
+               {% capture tag_name %}{{ tag | first }}{% endcapture %}
+            <div id="#{{ tag_name | slugize }}"></div>
+            <p></p>
+
+            <h3 class="tag-head"><a href="{{ site.baseurl }}/tag/{{ tag_name | slugify }}/">{{ tag_name }}</a></h3>
+            <a name="{{ tag_name | slugize }}"></a>
+            {% for post in site.tags[tag_name] %}
+            <article class="archive-item">
+              <div class="row">
+                <div class="col-8">
+                  <a href="{{ site.baseurl }}{{ post.url }}" style="color: grey; font-style: italic;">{{post.title}}</a>
+                </div>
+                <div class="col-4">
+                  <i>{{ post.date | date: '%b %d, %Y' }}</i>
+                </div>
+              </div>
+            </article>
+            {% endfor %}
+           </div>
+           <hr>
           {% endfor %}
-          <!-- pagination -->
-          {% include pagination.html %}
         </div>
       </div>
     </div>
   </div>
 </section>
-<!-- /posts -->
+

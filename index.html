@@ -21,3 +21,22 @@ layout: default
 {% endif %}
 <!-- /banner -->
 
+
+<!-- posts -->
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 mx-auto px-0">
+        <div class="bg-white shadow block">
+          <h2>Latest Articles</h2>
+          <hr>
+          {% assign posts = site.posts | sort: 'date' | reverse %}
+          {% for post in posts limit:5 %}
+            {% include post.html %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /posts -->
