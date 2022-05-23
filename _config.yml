@@ -8,7 +8,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   Kubernetes | Terraform | AWS | Ansible | Docker | Python
 
 #################### Comment Section (Disqus) ################
-disqus_shortname: "" # Add your shortname for Disqus Comment. For example : mr-brown
+disqus_shortname: "jawed" # Add your shortname for Disqus Comment. For example : mr-brown
 
 # Scss Directory
 sass:

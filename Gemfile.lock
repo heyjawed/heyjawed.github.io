@@ -81,6 +81,7 @@ DEPENDENCIES
   jekyll-paginate
   jekyll-sitemap
   jekyll-tagging
+  rouge
   wdm (>= 0.1.0)
 
 BUNDLED WITH

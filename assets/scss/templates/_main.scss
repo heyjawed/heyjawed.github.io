@@ -120,14 +120,12 @@
       list-style-type: none;
 
       &::before {
-        position: absolute;
-        content: "\e71b";
-        font-family: $icon-font;
-        font-size: 14px;
-        left: 0;
-        top: 1px;
-        color: $primary-color;
-        transition: .3s ease;
+        content: "\2022";
+        color: red;
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: -1em;
       }
     }
   }
