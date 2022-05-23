@@ -1,42 +1,155 @@
 ---
 layout: default
 ---
+<style>
+    ul.mylist {
+        list-style: none
+    }
 
-<!-- about -->
-<section class="section">
+    ul.mylist li::before {
+        content: "\2022";
+        color: red;
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: -1em;
+    }
+</style>
+
+<section class="section pb-0">
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 mx-auto px-0">
-        <div class="bg-white shadow block">
-          {% for post in site.posts %}
-          {% include post.html %}
-          {% endfor %}
-          <!-- pagination -->
-          {% include pagination.html %}
+      <div class="col-lg-10 mx-auto text-center block shadow">
+        <img src="assets/images/author/jawed-salim.jpg" class="img-fluid d-block mx-auto rounded-circle mb-2 author-thumb">
+
+        <h2>Jawed Salim</h2>
+
+        <div class="content">
+         <h5 style="color: grey">Sr. DevOps Engineer @ StackExpress (APYL) </h5>
+         <span style="color: red">AWS | Kubernetes | Terraform | Ansible | Docker | Python </span><br>
         </div>
+
+        <div class="text-left mt-4">
+            A passionate DevOps Engineer with a demonstrated history of 5+ years of working
+         experience in the information technology and services industry.
+        </div>
+
+        <div class="text-left mt-4">
+            <div>
+                <h3>WORK EXPERIENCE</h3>
+
+                <!-- Senior DevOps Engineer -->
+                <h4>Senior DevOps Engineer</h4>
+                <h5 style="color: grey">StackExpress (India) APYL Software & Systems Ltd.</h5>
+
+                <div class="row mb-3" style="color: red; font-style: italic;">
+                    <div class="col-6 text-left">
+                        Jan 2022 - Present
+                    </div>
+                    <div class="col-6 text-right">
+                        Noida, India
+                    </div>
+                </div>
+
+                <span style="color: red; font-style: italic;">Achievements/Tasks</span>
+                <ul class="mylist mb-4">
+                    <li> Mentoring junior software developers in gaining
+                    experience and assuming DevOps responsibilities. </li>
+
+                    <li>Configuration and managing databases such as MySQL,
+                    Master-Slave, MongoDB and Redis.</li>
+
+                    <li>Conforming to best practices in network administration
+                    and cybersecurity.</li>
+                </ul>
+
+                <!-- DevOps Engineer -->
+                <h4>DevOps Engineer | Python Developer (Backend)</h4>
+                <h5 style="color: grey">StackExpress (India) APYL Software & Systems Ltd.</h5>
+
+                <div class="row mb-3" style="color: red; font-style: italic;">
+                    <div class="col-6 text-left">
+                        Dec 2029 - Dec 2021
+                    </div>
+                    <div class="col-6 text-right">
+                        Noida, India
+                    </div>
+                </div>
+
+                <span style="color: red; font-style: italic;">Achievements/Tasks</span>
+                <ul class="mylist mb-4">
+                    <li>Used AWS, Terraform and Kubernetes to manage Client Infra and services.</li>
+                    <li>Automation implementation and Maintaining CI/CD pipelines using Jenkins, GitLab.</li>
+                    <li>Used ELK stack for logging with Prometheus and Grafana for Alerts and Monitoring.</li>
+                </ul>
+
+                <!-- Assistant DevOps Engineer -->
+                <h4>Assistant DevOps Engineer</h4>
+                <h5 style="color: grey">StackExpress (India) APYL Software & Systems Ltd.</h5>
+
+                <div class="row mb-3" style="color: red; font-style: italic;">
+                    <div class="col-6 text-left">
+                        Feb 2016 - Nov 2017
+                    </div>
+                    <div class="col-6 text-right">
+                        Noida, India
+                    </div>
+                </div>
+
+                <span style="color: red; font-style: italic;">Achievements/Tasks</span>
+                <ul class="mylist mb-4">
+                    <li>Utilized various open source technologies and used various tools to orchestrate solutions. </li>
+                    <li>Write Ansible Roles/Playbooks for provisioning and deployments. </li>
+                    <li>Build REST APIs using Python and Flask for internal projects. </li>
+                </ul>
+
+                <!-- Trainee DevOps Engineer -->
+                <h4>Trainee DevOps Engineer</h4>
+                <h5 style="color: grey">StackExpress (India) APYL Software & Systems Ltd.</h5>
+
+                <div class="row mb-3" style="color: red; font-style: italic;">
+                    <div class="col-6 text-left">
+                        Apr 2015 - Feb 2016
+                    </div>
+                    <div class="col-6 text-right">
+                        Noida, India
+                    </div>
+                </div>
+
+                <span style="color: red; font-style: italic;">Achievements/Tasks</span>
+                <ul class="mylist mb-4">
+                    <li>Have got hands-on experience in Linux basics, Bash/Shell/Python scripting and DevOps methodology. </li>
+                    <li>Used DevOps tools or applications such as Jenkins, Git, Vagrant, Docker, Ansible etc.  </li>
+                    <li>Created CI/CD Pipelines using Jenkins and containerized code on dev & stage using Docker. </li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>EDUCATION</h3>
+
+                <!-- B.Tech -->
+                <h4>Bachelor’s Degree ( Computer Science ) </h4>
+                <h5 style="color: grey"> College of Engineering & Technology (AKTU)</h5>
+                <span style="color: red">Jul 2010 - Jun 2014</span>
+                <div class="mb-4">
+                    <i>First Division with Honours (77.8 %)</i>
+                </div>
+
+                <!-- Schooling -->
+                <h4>High School & Intermediate</h4>
+                <h5 style="color: grey"> Jawahar Navodaya Vidyalaya (JNV)</h5>
+                <span style="color: red">Jul 2005 - Jun 2009</span>
+                <div class="mb-4">
+                    <i>First Division with Honours (81.0 %)</i>
+                </div>
+
+            </div>
+
+        </div>
+
+        <a href="https://drive.google.com/file/d/1pRoLWlmqgCTphY1HhsEEvTBzv4ylYJD3/view?usp=sharing" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Download CV</a>
       </div>
     </div>
   </div>
 </section>
-<!-- /about -->
 
-<!-- call_to_action -->
-<section class="section pt-0">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <div class="row shadow bg-white p-5">
-          <div class="col-md-4 text-center text-md-left mb-4 mb-lg-0">
-            <img src="{{ site.data.homepage.call_to_action.image | relative_url }}" class="mr-4" alt=""></div>
-          <div class="col-md-8 text-center text-md-left">
-            <h3 class="mt-0">title</h3>
-            <p>Description</p>
-            <a href="{{ site.data.homepage.call_to_action.button.link | relative_url }}"
-              class="btn btn-primary">{{ button }}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- /call_to_action -->
