@@ -7,6 +7,9 @@ description : "Use Jenkins Shared Library"
 tags: [Jenkins]
 ---
 
+Pipeline has support for creating "Shared Libraries" which can be defined in external source control repositories and loaded into existing Pipelines.
+
+Shared Libraries marked Load implicitly allows Pipelines to immediately use classes or global variables defined by any such libraries. To access other shared libraries, the Jenkinsfile needs to use the @Library annotation, specifying the library’s name:
 
 ## Configure incoming webhook on MS teams
 
