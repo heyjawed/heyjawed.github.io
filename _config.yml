@@ -23,6 +23,7 @@ plugins:
   - jekyll-sitemap
   - jekyll/tagging
   - jekyll-feed
+  - jekyll-archives
 
 paginate: 6
 paginate_path: "/page/:num"
@@ -52,10 +53,13 @@ defaults:
       permalink: post/:title:output_ext
       layout: post
 
+  - scope:
+      path: ''
+      type: tags
+    values:
+      layout: tag
+
 # Tags
-tag_archive:
-  type: liquid
-  path: /tag/
 tag_page_dir:         tag
 tag_page_layout:      tags
 tag_permalink_style:  pretty
