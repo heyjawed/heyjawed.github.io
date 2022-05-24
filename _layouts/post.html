@@ -9,7 +9,7 @@ layout : default
         <h2>{{ page.title }}</h2>
         <div class="mb-3 post-meta">
           {% if page.author %}
-          <a href="{{ 'author/' | relative_url }}{{ page.author | slugify }}">{{ page.author | capitalize }}</a>{%endif%},
+          By <a href="{{ 'author/' | relative_url }}{{ page.author | slugify }}">{{ page.author | capitalize }}</a>{%endif%},
           {{ page.date | date: '%b %d, %Y' }},
           {% if page.tags.size >= 1 %}
           {% for tag in page.tags %}
