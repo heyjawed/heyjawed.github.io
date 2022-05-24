@@ -53,13 +53,16 @@ defaults:
       layout: post
 
 # Tags
+tag_archive:
+  type: liquid
+  path: /tag/
 tag_page_dir:         tag
 tag_page_layout:      tags
 tag_permalink_style:  pretty
 
 
-# # Exclude from processing.
-# exclude:
-#   - Gemfile
-#   - Gemfile.lock
-#   - vendor
+# Exclude from processing.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
