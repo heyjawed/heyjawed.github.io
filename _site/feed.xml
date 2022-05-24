@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-05-24T08:36:56+05:30</updated><id>http://localhost:4000/feed.xml</id><title type="html">Jawed Salim</title><subtitle>Hi, I'm Jawed Salim. A Senior DevOps Engineer @ StackExpress (APYL Software and Systems Ltd.) Noida (India) Kubernetes | Terraform | AWS | Ansible | Docker | Python</subtitle><entry><title type="html">Setup Hashicorp Vault cluster on kubernetes</title><link href="http://localhost:4000/post/setup-hashicorp-vault-cluster-on-kubernetes.html" rel="alternate" type="text/html" title="Setup Hashicorp Vault cluster on kubernetes" /><published>2022-05-23T11:05:58+05:30</published><updated>2022-05-23T11:05:58+05:30</updated><id>http://localhost:4000/post/setup-hashicorp-vault-cluster-on-kubernetes</id><content type="html" xml:base="http://localhost:4000/post/setup-hashicorp-vault-cluster-on-kubernetes.html"><![CDATA[<p>The <a href="https://github.com/hashicorp/vault-helm">Vault Helm chart</a> is the recommended way to install and configure Vault on Kubernetes. In addition to running Vault itself, the Helm chart is the primary method for installing and configuring Vault to integrate with other services such as Consul for High Availability (HA) deployments.</p>
+
+<p>While the Helm chart automatically sets up complex resources and exposes the configuration to meet your requirements, it does not automatically operate Vault. You are still responsible for learning how to <em>initialize, monitor, backup, upgrade</em>, etc. the Vault cluster.</p>
+
+<p><strong>Steps we will use in this guide</strong></p>
+
+<ul>
+  <li>Create Kubernetes Namespace</li>
+  <li>Set Up HashiCorp Helm Repo</li>
+  <li>Install Consul Storage backend</li>
+  <li>Install Vault in HA mode</li>
+  <li>Initialize and Unseal Vault</li>
+</ul>
+
+<h2 id="create-kubernetes-namespace">Create Kubernetes Namespace</h2>
+
+<p>Create a K8s namespace.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl create ns vault-consul
+
+namespace/vault-cluster created
+</code></pre></div></div>
+
+<p>View your new K8s objects.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get all <span class="nt">-n</span> vault-consul
+</code></pre></div></div>
+
+<h2 id="set-up-hashicorp-helm-repo">Set Up HashiCorp Helm Repo</h2>
+
+<p>Helm must be installed and configured on your machine. For help installing Helm, please refer to the <a href="https://helm.sh/">Helm documentation</a> or the <a href="https://learn.hashicorp.com/tutorials/vault/kubernetes-minikube">Vault Installation to Minikube via Helm</a> tutorial.</p>
+
+<p>Check Helm Version</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm version
+
+version.BuildInfo<span class="o">{</span>Version:<span class="s2">"v3.4.1"</span>, GitCommit:<span class="s2">"c4e74854886b2efe3321e185578e6db9be0a6e29"</span>, GitTreeState:<span class="s2">"dirty"</span>, GoVersion:<span class="s2">"go1.15.4"</span><span class="o">}</span>
+</code></pre></div></div>
+
+<p>To access the Vault and Consul Helm chart, add the Hashicorp Helm repository.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm repo add hashicorp https://helm.releases.hashicorp.com
+
+<span class="s2">"hashicorp"</span> has been added to your repositories
+</code></pre></div></div>
+
+<p>Check that you have access to the <code class="language-plaintext highlighter-rouge">Consul</code> chart.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm search repo hashicorp/consul
+
+NAME            	CHART VERSION	APP VERSION	    DESCRIPTION
+hashicorp/consul	0.43.0       	1.12.0     	    Official HashiCorp Consul Chart
+</code></pre></div></div>
+
+<p>Check that you have access to the <code class="language-plaintext highlighter-rouge">Vault</code> chart.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm search repo hashicorp/vault
+
+NAME           	    CHART VERSION	APP VERSION	    DESCRIPTION
+hashicorp/vault	    0.19.0       	1.9.2      	    Official HashiCorp Vault Chart
+</code></pre></div></div>
+
+<h2 id="install-consul-storage-backend">Install Consul Storage backend</h2>
+
+<p>The Consul storage backend is used to <strong>persist Vault’s data in Consul’s key-value store</strong>. In addition to providing durable storage, inclusion of this backend will also register Vault as a service in Consul with a default health check.
+<strong>High Availability</strong> – the Consul storage backend supports high availability.</p>
+
+<p>Now you’re ready to install Consul! Install Consul on the dedicated namespace.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm <span class="nb">install </span>consul hashicorp/consul <span class="nt">--set</span> global.name<span class="o">=</span>consul <span class="nt">-n</span> vault-consul
+
+NAME: consul
+LAST DEPLOYED: Tue Apr 21 17:01:37 2022
+NAMESPACE: vault-consul
+STATUS: deployed
+REVISION: 1
+NOTES:
+Thank you <span class="k">for </span>installing HashiCorp Consul!
+
+Your release is named consul.
+
+To learn more about the release, run:
+
+  <span class="nv">$ </span>helm status consul
+  <span class="nv">$ </span>helm get all consul
+
+Consul on Kubernetes Documentation:
+https://www.consul.io/docs/platform/k8s
+
+Consul on Kubernetes CLI Reference:
+https://www.consul.io/docs/k8s/k8s-cli
+</code></pre></div></div>
+
+<p>Check k8s objects in <code class="language-plaintext highlighter-rouge">vault-consul</code> namespace</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get all <span class="nt">-n</span> vault-consul <span class="nt">--selector</span><span class="o">=</span><span class="nv">app</span><span class="o">=</span>consul
+
+NAME                      READY   STATUS    RESTARTS   AGE
+pod/consul-client-7dhmg   1/1     Running   0          2m
+pod/consul-client-jmlbd   1/1     Running   0          2m
+pod/consul-client-nzwfp   1/1     Running   0          2m
+pod/consul-server-0       1/1     Running   0          2m
+pod/consul-server-1       1/1     Running   0          2m
+pod/consul-server-2       1/1     Running   0          2m
+
+NAME                    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                                                                   AGE
+service/consul-dns      ClusterIP   10.8.8.105   &lt;none&gt;        53/TCP,53/UDP                                                             2m
+service/consul-server   ClusterIP   None         &lt;none&gt;        8500/TCP,8301/TCP,8301/UDP,8302/TCP,8302/UDP,8300/TCP,8600/TCP,8600/UDP   2m
+service/consul-ui       ClusterIP   10.8.2.186   &lt;none&gt;        80/TCP                                                                    2m
+
+NAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/consul-client   3         3         3       3            3           &lt;none&gt;          2m
+
+NAME                             READY   AGE
+statefulset.apps/consul-server   3/3     2m
+</code></pre></div></div>
+
+<blockquote>
+  <p>Consul storage backend is installed and Vault can access it using address - <code class="language-plaintext highlighter-rouge">consul-server:8500</code> (Consul server service name and port) in same namespace</p>
+</blockquote>
+
+<h2 id="install-vault-in-ha-mode">Install Vault in HA mode</h2>
+
+<p>Get <code class="language-plaintext highlighter-rouge">values.yaml</code> file to update config options</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>wget https://raw.githubusercontent.com/hashicorp/vault-helm/v0.19.0/values.yaml
+</code></pre></div></div>
+
+<p>Now open <code class="language-plaintext highlighter-rouge">values.yaml</code> in your favourite editor and update following config options</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Available parameters and their default values for the Vault chart.</span>
+
+<span class="na">global</span><span class="pi">:</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="c1"># TLS for end-to-end encrypted transport</span>
+  <span class="na">tlsDisable</span><span class="pi">:</span> <span class="no">true</span>
+<span class="nn">...</span>
+<span class="nn">...</span>
+<span class="na">injector</span><span class="pi">:</span>
+  <span class="c1"># True if you want to enable vault agent injection.</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+<span class="nn">...</span>
+<span class="nn">...</span>
+<span class="na">server</span><span class="pi">:</span>
+  <span class="c1"># If not set to true, Vault server will not be installed.</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="s">...</span>
+  <span class="s">...</span>
+  <span class="na">ha</span><span class="pi">:</span>
+    <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+    <span class="na">replicas</span><span class="pi">:</span> <span class="m">3</span>
+    <span class="s">...</span>
+    <span class="s">...</span>
+    <span class="na">config</span><span class="pi">:</span> <span class="pi">|</span>
+      <span class="s">ui = true</span>
+
+      <span class="s">listener "tcp" {</span>
+        <span class="s">tls_disable = 1</span>
+        <span class="s">address = "[::]:8200"</span>
+        <span class="s">cluster_address = "[::]:8201"</span>
+      <span class="s">}</span>
+      <span class="s">storage "consul" {</span>
+        <span class="s">path = "vault"</span>
+        <span class="s">address = "consul-server:8500" # &lt;consul-server-service:8500&gt;</span>
+      <span class="s">}</span>
+
+      <span class="s">service_registration "kubernetes" {}</span>
+<span class="s">...</span>
+<span class="nn">...</span>
+</code></pre></div></div>
+
+<p>Once you updated the <code class="language-plaintext highlighter-rouge">values.yaml</code> file, install <code class="language-plaintext highlighter-rouge">vault</code></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm <span class="nb">install </span>vault hashicorp/vault <span class="nt">-n</span> vault-consul <span class="nt">-f</span> values.yaml
+
+NAME: vault
+LAST DEPLOYED: Tue Apr 21 17:08:31 2022
+NAMESPACE: vault-consul
+STATUS: deployed
+REVISION: 1
+NOTES:
+Thank you <span class="k">for </span>installing HashiCorp Vault!
+
+Now that you have deployed Vault, you should look over the docs on using
+Vault with Kubernetes available here:
+
+https://www.vaultproject.io/docs/
+
+
+Your release is named vault. To learn more about the release, try:
+
+  <span class="nv">$ </span>helm status vault
+  <span class="nv">$ </span>helm get manifest vault
+</code></pre></div></div>
+
+<p>Check k8s objects in <code class="language-plaintext highlighter-rouge">vault-consul</code> namespace</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get all <span class="nt">-n</span> vault-consul <span class="nt">--selector</span><span class="o">=</span>app.kubernetes.io/instance<span class="o">=</span>vault
+
+NAME                                       READY   STATUS    RESTARTS   AGE
+pod/vault-0                                0/1     Running   0          3m
+pod/vault-1                                0/1     Running   0          3m
+pod/vault-2                                0/1     Running   0          3m
+pod/vault-agent-injector-c6d85cb5f-csfql   1/1     Running   0          3m
+
+NAME                               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>             AGE
+service/vault                      ClusterIP   10.8.6.32     &lt;none&gt;        8200/TCP,8201/TCP   3m
+service/vault-active               ClusterIP   10.8.15.119   &lt;none&gt;        8200/TCP,8201/TCP   3m
+service/vault-agent-injector-svc   ClusterIP   10.8.10.120   &lt;none&gt;        443/TCP             30h
+service/vault-internal             ClusterIP   None          &lt;none&gt;        8200/TCP,8201/TCP   3m
+service/vault-standby              ClusterIP   10.8.10.62    &lt;none&gt;        8200/TCP,8201/TCP   3m
+
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/vault-agent-injector   1/1     1            1           3m
+
+NAME                                             DESIRED   CURRENT   READY   AGE
+replicaset.apps/vault-agent-injector-c6d85cb5f   1         1         1       3m
+
+NAME                     READY   AGE
+statefulset.apps/vault   0/3     3m
+</code></pre></div></div>
+
+<blockquote>
+  <p>Note: Vault is deployed in HA mode with Consul storage backend but the pods are not in ready state, you need to initialize and unseal the Vault</p>
+</blockquote>
+
+<h2 id="initialize-and-unseal-vault">Initialize and Unseal Vault</h2>
+
+<p>After the Vault Helm chart is installed, one of the Vault servers need to be initialized. The initialization generates the credentials necessary to unseal all the Vault servers.</p>
+
+<p>View all the Vault pods in the current namespace:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>❯ kubectl get pods <span class="nt">--selector</span><span class="o">=</span><span class="s1">'app.kubernetes.io/name=vault'</span> <span class="nt">-n</span> vault-consul
+
+NAME                                        READY   STATUS    RESTARTS   AGE
+pod/vault-0                                 0/1     Running   0          4m51s
+pod/vault-1                                 0/1     Running   0          4m51s
+pod/vault-2                                 0/1     Running   0          4m51s
+</code></pre></div></div>
+
+<p>Initialize one Vault server with the default number of key shares and default key threshold:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator init
+
+Unseal Key 1: MQxywN4svq/cBFxVOemsTbasIA0Z8qwnFyOI3p3SFDv3
+Unseal Key 2: QGAHFZ+q6tXR6tCSQ7cekWTURzda3mxohquXv7va+6AX
+Unseal Key 3: vHuHc3ZNCI9mZ8x+TyAbXmjavdJTGXDCLD7aSJfHjx6T
+Unseal Key 4: 6hHPhx8hQsjQgeCj8BspL+gPUyeI+suvps0/kk9BY/Ia
+Unseal Key 5: +vBOyGddh+rCPpb1cNZ4u13VgZv4tBD8h7Z0cMEu3jg8
+
+Initial Root Token: s.HORogWa8ftxZor8f40ysXrYI
+
+Vault initialized with 5 key shares and a key threshold of 3. Please securely
+distribute the key shares printed above. When the Vault is re-sealed,
+restarted, or stopped, you must supply at least 3 of these keys to unseal it
+before it can start servicing requests.
+
+Vault does not store the generated master key. Without at least 3 keys to
+reconstruct the master key, Vault will remain permanently sealed!
+
+It is possible to generate new unseal keys, provided you have a quorum of
+existing unseal keys shares. See <span class="s2">"vault operator rekey"</span> <span class="k">for </span>more information.
+</code></pre></div></div>
+
+<p>The output displays the key shares and initial root key generated.</p>
+
+<blockquote>
+  <p><strong>Important Note</strong>: These keys are critical to both the security and the operation of Vault and should be treated as per your company’s sensitive data policy.</p>
+</blockquote>
+
+<p>Unseal the Vault server with the key shares until the key threshold is met:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator unseal &lt;Unseal Key 1&gt;
+
+Key                Value
+<span class="nt">---</span>                <span class="nt">-----</span>
+Seal Type          shamir
+Initialized        <span class="nb">true
+</span>Sealed             <span class="nb">true
+</span>Total Shares       5
+Threshold          3
+Unseal Progress    1/3
+Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0b
+Version            1.9.2
+Storage Type       consul
+HA Enabled         <span class="nb">true</span>
+</code></pre></div></div>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator unseal &lt;Unseal key 2&gt;
+
+Key                Value
+<span class="nt">---</span>                <span class="nt">-----</span>
+Seal Type          shamir
+Initialized        <span class="nb">true
+</span>Sealed             <span class="nb">true
+</span>Total Shares       5
+Threshold          3
+Unseal Progress    2/3
+Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0b
+Version            1.9.2
+Storage Type       consul
+HA Enabled         <span class="nb">true</span>
+</code></pre></div></div>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator unseal &lt;Unseal Key 3&gt;
+
+Key             Value
+<span class="nt">---</span>             <span class="nt">-----</span>
+Seal Type       shamir
+Initialized     <span class="nb">true
+</span>Sealed          <span class="nb">false
+</span>Total Shares    5
+Threshold       3
+Version         1.9.2
+Storage Type    consul
+Cluster Name    vault-cluster-9c0d92a1
+Cluster ID      5a90da4a-4dfd-bff9-eaa7-bb7c9b74009f
+HA Enabled      <span class="nb">true
+</span>HA Cluster      https://vault-0.vault-internal:8201
+HA Mode         active
+Active Since    2022-04-21T11:41:24.062777848Z
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>Repeat the unseal process for all Vault server pods. When all Vault server pods are unsealed they report <code class="language-plaintext highlighter-rouge">READY 1/1</code>.</p>
+</blockquote>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get pods <span class="nt">--selector</span><span class="o">=</span><span class="s1">'app.kubernetes.io/name=vault'</span> <span class="nt">-n</span> vault-consul
+NAME                                    READY   STATUS    RESTARTS   AGE
+vault-0                                 1/1     Running   0          6m49s
+vault-1                                 1/1     Running   0          6m49s
+vault-2                                 1/1     Running   0          6m49s
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://learn.hashicorp.com/tutorials/vault/kubernetes-raft-deployment-guide?in=vault/kubernetes">kubernetes-raft-deployment-guide</a></li>
+</ul>
+
+<h2 id="todo">TODO</h2>
+
+<ul>
+  <li>Enable TLS</li>
+  <li>Use GCP KMS for auto unsealing</li>
+</ul>]]></content><author><name>Jawed Salim</name></author><category term="Vault-Consul" /><summary type="html"><![CDATA[Vault Consul Setup on k8s in HA mode]]></summary></entry><entry><title type="html">Welcome to Jekyll!</title><link href="http://localhost:4000/post/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Jekyll!" /><published>2020-08-18T10:42:58+05:30</published><updated>2020-08-18T10:42:58+05:30</updated><id>http://localhost:4000/post/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/post/welcome-to-jekyll.html"><![CDATA[<p>You’ll find this post in your <code class="language-plaintext highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="language-plaintext highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+
+<p>Jekyll requires blog post files to be named according to the following format:</p>
+
+<p><code class="language-plaintext highlighter-rouge">YEAR-MONTH-DAY-title.MARKUP</code></p>
+
+<p>Where <code class="language-plaintext highlighter-rouge">YEAR</code> is a four-digit number, <code class="language-plaintext highlighter-rouge">MONTH</code> and <code class="language-plaintext highlighter-rouge">DAY</code> are both two-digit numbers, and <code class="language-plaintext highlighter-rouge">MARKUP</code> is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+
+<p>Jekyll also offers powerful support for code snippets:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>
+
+<p>Check out the <a href="https://jekyllrb.com/docs/home">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://talk.jekyllrb.com/">Jekyll Talk</a>.</p>]]></content><author><name>John Doe</name></author><category term="Travels" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-1.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-1.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post.4.html" rel="alternate" type="text/html" title="My awesome blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post.4</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post.4.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>Mark Dinn</name></author><category term="Hugo" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-1.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-1.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post.html" rel="alternate" type="text/html" title="My awesome blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>Mark Dinn</name></author><category term="Meta Data" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-1.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-1.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome second blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post-6.html" rel="alternate" type="text/html" title="My awesome second blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post-6</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post-6.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>John Doe</name></author><category term="Development Tools" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-1.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-1.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome second blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post-4.html" rel="alternate" type="text/html" title="My awesome second blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post-4</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post-4.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>John Doe</name></author><category term="Jekyll" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-3.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome second blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post-5.html" rel="alternate" type="text/html" title="My awesome second blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post-5</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post-5.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>Mark Dinn</name></author><category term="Hugo" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-3.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post.2.html" rel="alternate" type="text/html" title="My awesome blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post.2</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post.2.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>Mark Dinn</name></author><category term="Meta Data" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-2.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post.3.html" rel="alternate" type="text/html" title="My awesome blog post" /><published>2020-08-08T10:42:58+05:30</published><updated>2020-08-08T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post.3</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post.3.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>John Doe</name></author><category term="Hugo" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-3.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">My awesome second blog post</title><link href="http://localhost:4000/post/my-awesome-blog-post-2.html" rel="alternate" type="text/html" title="My awesome second blog post" /><published>2020-08-07T10:42:58+05:30</published><updated>2020-08-07T10:42:58+05:30</updated><id>http://localhost:4000/post/my-awesome-blog-post-2</id><content type="html" xml:base="http://localhost:4000/post/my-awesome-blog-post-2.html"><![CDATA[<p>Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.</p>
+
+<p>Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…</p>
+
+<p><strong>Algorithm:</strong> “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.</p>
+
+<p><strong>Algorithm Change:</strong> All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.</p>
+
+<ul>
+  <li>
+    <p>Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.</p>
+  </li>
+  <li>
+    <p>Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.</p>
+  </li>
+  <li>
+    <p>New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.</p>
+  </li>
+</ul>]]></content><author><name>John Doe</name></author><category term="Design Tools" /><summary type="html"><![CDATA[This is meta description]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/post/post-2.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/post/post-2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

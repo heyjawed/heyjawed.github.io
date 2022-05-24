@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Jawed Salim</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Vault Consul Setup on k8s in HA mode">
+
+  
+
+  
+  <link rel="stylesheet" href="/assets/plugins/bootstrap/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="/assets/plugins/themify-icons/themify-icons.css">
+  
+
+  <!-- Main Stylesheet -->
+  <link href="/assets/scss/style.css" rel="stylesheet">
+
+  <!--Favicon-->
+  <link rel="shortcut icon" href="/assets/images/favicon.png " type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.png " type="image/x-icon">
+
+  <!-- google-analytics -->
+  
+
+</head>
+
+
+<body>
+	
+	<!-- navigation -->
+<header class="fixed-top navigation">
+  <div class="container">
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+      <a class="navbar-brand" href="/"><img class="img-fluid" src="/assets/images/logo.png" alt="Jawed Salim"></a>
+      <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navigation">
+        <i class="ti-menu h3"></i>
+      </button>
+
+      <div class="collapse navbar-collapse text-center" id="navigation">
+        <ul class="navbar-nav ml-auto">
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/"><i class="ti-home"></i> Home</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/about"><i class="ti-user"></i> About</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/articles"><i class="ti-menu-alt"></i> Articles</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/contact"><i class="ti-email"></i> Contact</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/tools"><i class="ti-ruler-pencil"></i> Tools</a>
+            </li>
+            
+          
+        </ul>
+        
+        <!-- search -->
+        <div class="search">
+          <button id="searchOpen" class="search-btn"><i class="ti-search"></i></button>
+          <div class="search-wrapper">
+            <form action="/search" class="h-100">
+              <input class="search-box px-4" id="search-box" name="query" type="search" placeholder="Type & Hit Enter...">
+            </form>
+            <button id="searchClose" class="search-close"><i class="ti-close text-dark"></i></button>
+          </div>
+        </div>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+<!-- /navigation -->
+
+	<div class="py-5 d-none d-lg-block"></div>
+	<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 mx-auto block shadow mb-5">
+        <h2>Setup Hashicorp Vault cluster on kubernetes</h2>
+        <div class="mb-3 post-meta">
+          
+          By <a href="/author/jawed-salim">Jawed salim</a>,
+          May 23, 2022,
+          
+          
+          <a href="/tag/vault-consul">Vault-consul</a>
+          
+          
+        </div>
+        
+        <div class="content mb-5">
+          <p>The <a href="https://github.com/hashicorp/vault-helm">Vault Helm chart</a> is the recommended way to install and configure Vault on Kubernetes. In addition to running Vault itself, the Helm chart is the primary method for installing and configuring Vault to integrate with other services such as Consul for High Availability (HA) deployments.</p>
+
+<p>While the Helm chart automatically sets up complex resources and exposes the configuration to meet your requirements, it does not automatically operate Vault. You are still responsible for learning how to <em>initialize, monitor, backup, upgrade</em>, etc. the Vault cluster.</p>
+
+<p><strong>Steps we will use in this guide</strong></p>
+
+<ul>
+  <li>Create Kubernetes Namespace</li>
+  <li>Set Up HashiCorp Helm Repo</li>
+  <li>Install Consul Storage backend</li>
+  <li>Install Vault in HA mode</li>
+  <li>Initialize and Unseal Vault</li>
+</ul>
+
+<h2 id="create-kubernetes-namespace">Create Kubernetes Namespace</h2>
+
+<p>Create a K8s namespace.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl create ns vault-consul
+
+namespace/vault-cluster created
+</code></pre></div></div>
+
+<p>View your new K8s objects.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get all <span class="nt">-n</span> vault-consul
+</code></pre></div></div>
+
+<h2 id="set-up-hashicorp-helm-repo">Set Up HashiCorp Helm Repo</h2>
+
+<p>Helm must be installed and configured on your machine. For help installing Helm, please refer to the <a href="https://helm.sh/">Helm documentation</a> or the <a href="https://learn.hashicorp.com/tutorials/vault/kubernetes-minikube">Vault Installation to Minikube via Helm</a> tutorial.</p>
+
+<p>Check Helm Version</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm version
+
+version.BuildInfo<span class="o">{</span>Version:<span class="s2">"v3.4.1"</span>, GitCommit:<span class="s2">"c4e74854886b2efe3321e185578e6db9be0a6e29"</span>, GitTreeState:<span class="s2">"dirty"</span>, GoVersion:<span class="s2">"go1.15.4"</span><span class="o">}</span>
+</code></pre></div></div>
+
+<p>To access the Vault and Consul Helm chart, add the Hashicorp Helm repository.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm repo add hashicorp https://helm.releases.hashicorp.com
+
+<span class="s2">"hashicorp"</span> has been added to your repositories
+</code></pre></div></div>
+
+<p>Check that you have access to the <code class="language-plaintext highlighter-rouge">Consul</code> chart.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm search repo hashicorp/consul
+
+NAME            	CHART VERSION	APP VERSION	    DESCRIPTION
+hashicorp/consul	0.43.0       	1.12.0     	    Official HashiCorp Consul Chart
+</code></pre></div></div>
+
+<p>Check that you have access to the <code class="language-plaintext highlighter-rouge">Vault</code> chart.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm search repo hashicorp/vault
+
+NAME           	    CHART VERSION	APP VERSION	    DESCRIPTION
+hashicorp/vault	    0.19.0       	1.9.2      	    Official HashiCorp Vault Chart
+</code></pre></div></div>
+
+<h2 id="install-consul-storage-backend">Install Consul Storage backend</h2>
+
+<p>The Consul storage backend is used to <strong>persist Vault’s data in Consul’s key-value store</strong>. In addition to providing durable storage, inclusion of this backend will also register Vault as a service in Consul with a default health check.
+<strong>High Availability</strong> – the Consul storage backend supports high availability.</p>
+
+<p>Now you’re ready to install Consul! Install Consul on the dedicated namespace.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm <span class="nb">install </span>consul hashicorp/consul <span class="nt">--set</span> global.name<span class="o">=</span>consul <span class="nt">-n</span> vault-consul
+
+NAME: consul
+LAST DEPLOYED: Tue Apr 21 17:01:37 2022
+NAMESPACE: vault-consul
+STATUS: deployed
+REVISION: 1
+NOTES:
+Thank you <span class="k">for </span>installing HashiCorp Consul!
+
+Your release is named consul.
+
+To learn more about the release, run:
+
+  <span class="nv">$ </span>helm status consul
+  <span class="nv">$ </span>helm get all consul
+
+Consul on Kubernetes Documentation:
+https://www.consul.io/docs/platform/k8s
+
+Consul on Kubernetes CLI Reference:
+https://www.consul.io/docs/k8s/k8s-cli
+</code></pre></div></div>
+
+<p>Check k8s objects in <code class="language-plaintext highlighter-rouge">vault-consul</code> namespace</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get all <span class="nt">-n</span> vault-consul <span class="nt">--selector</span><span class="o">=</span><span class="nv">app</span><span class="o">=</span>consul
+
+NAME                      READY   STATUS    RESTARTS   AGE
+pod/consul-client-7dhmg   1/1     Running   0          2m
+pod/consul-client-jmlbd   1/1     Running   0          2m
+pod/consul-client-nzwfp   1/1     Running   0          2m
+pod/consul-server-0       1/1     Running   0          2m
+pod/consul-server-1       1/1     Running   0          2m
+pod/consul-server-2       1/1     Running   0          2m
+
+NAME                    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                                                                   AGE
+service/consul-dns      ClusterIP   10.8.8.105   &lt;none&gt;        53/TCP,53/UDP                                                             2m
+service/consul-server   ClusterIP   None         &lt;none&gt;        8500/TCP,8301/TCP,8301/UDP,8302/TCP,8302/UDP,8300/TCP,8600/TCP,8600/UDP   2m
+service/consul-ui       ClusterIP   10.8.2.186   &lt;none&gt;        80/TCP                                                                    2m
+
+NAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/consul-client   3         3         3       3            3           &lt;none&gt;          2m
+
+NAME                             READY   AGE
+statefulset.apps/consul-server   3/3     2m
+</code></pre></div></div>
+
+<blockquote>
+  <p>Consul storage backend is installed and Vault can access it using address - <code class="language-plaintext highlighter-rouge">consul-server:8500</code> (Consul server service name and port) in same namespace</p>
+</blockquote>
+
+<h2 id="install-vault-in-ha-mode">Install Vault in HA mode</h2>
+
+<p>Get <code class="language-plaintext highlighter-rouge">values.yaml</code> file to update config options</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>wget https://raw.githubusercontent.com/hashicorp/vault-helm/v0.19.0/values.yaml
+</code></pre></div></div>
+
+<p>Now open <code class="language-plaintext highlighter-rouge">values.yaml</code> in your favourite editor and update following config options</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Available parameters and their default values for the Vault chart.</span>
+
+<span class="na">global</span><span class="pi">:</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="c1"># TLS for end-to-end encrypted transport</span>
+  <span class="na">tlsDisable</span><span class="pi">:</span> <span class="no">true</span>
+<span class="nn">...</span>
+<span class="nn">...</span>
+<span class="na">injector</span><span class="pi">:</span>
+  <span class="c1"># True if you want to enable vault agent injection.</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+<span class="nn">...</span>
+<span class="nn">...</span>
+<span class="na">server</span><span class="pi">:</span>
+  <span class="c1"># If not set to true, Vault server will not be installed.</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="s">...</span>
+  <span class="s">...</span>
+  <span class="na">ha</span><span class="pi">:</span>
+    <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+    <span class="na">replicas</span><span class="pi">:</span> <span class="m">3</span>
+    <span class="s">...</span>
+    <span class="s">...</span>
+    <span class="na">config</span><span class="pi">:</span> <span class="pi">|</span>
+      <span class="s">ui = true</span>
+
+      <span class="s">listener "tcp" {</span>
+        <span class="s">tls_disable = 1</span>
+        <span class="s">address = "[::]:8200"</span>
+        <span class="s">cluster_address = "[::]:8201"</span>
+      <span class="s">}</span>
+      <span class="s">storage "consul" {</span>
+        <span class="s">path = "vault"</span>
+        <span class="s">address = "consul-server:8500" # &lt;consul-server-service:8500&gt;</span>
+      <span class="s">}</span>
+
+      <span class="s">service_registration "kubernetes" {}</span>
+<span class="s">...</span>
+<span class="nn">...</span>
+</code></pre></div></div>
+
+<p>Once you updated the <code class="language-plaintext highlighter-rouge">values.yaml</code> file, install <code class="language-plaintext highlighter-rouge">vault</code></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm <span class="nb">install </span>vault hashicorp/vault <span class="nt">-n</span> vault-consul <span class="nt">-f</span> values.yaml
+
+NAME: vault
+LAST DEPLOYED: Tue Apr 21 17:08:31 2022
+NAMESPACE: vault-consul
+STATUS: deployed
+REVISION: 1
+NOTES:
+Thank you <span class="k">for </span>installing HashiCorp Vault!
+
+Now that you have deployed Vault, you should look over the docs on using
+Vault with Kubernetes available here:
+
+https://www.vaultproject.io/docs/
+
+
+Your release is named vault. To learn more about the release, try:
+
+  <span class="nv">$ </span>helm status vault
+  <span class="nv">$ </span>helm get manifest vault
+</code></pre></div></div>
+
+<p>Check k8s objects in <code class="language-plaintext highlighter-rouge">vault-consul</code> namespace</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get all <span class="nt">-n</span> vault-consul <span class="nt">--selector</span><span class="o">=</span>app.kubernetes.io/instance<span class="o">=</span>vault
+
+NAME                                       READY   STATUS    RESTARTS   AGE
+pod/vault-0                                0/1     Running   0          3m
+pod/vault-1                                0/1     Running   0          3m
+pod/vault-2                                0/1     Running   0          3m
+pod/vault-agent-injector-c6d85cb5f-csfql   1/1     Running   0          3m
+
+NAME                               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>             AGE
+service/vault                      ClusterIP   10.8.6.32     &lt;none&gt;        8200/TCP,8201/TCP   3m
+service/vault-active               ClusterIP   10.8.15.119   &lt;none&gt;        8200/TCP,8201/TCP   3m
+service/vault-agent-injector-svc   ClusterIP   10.8.10.120   &lt;none&gt;        443/TCP             30h
+service/vault-internal             ClusterIP   None          &lt;none&gt;        8200/TCP,8201/TCP   3m
+service/vault-standby              ClusterIP   10.8.10.62    &lt;none&gt;        8200/TCP,8201/TCP   3m
+
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/vault-agent-injector   1/1     1            1           3m
+
+NAME                                             DESIRED   CURRENT   READY   AGE
+replicaset.apps/vault-agent-injector-c6d85cb5f   1         1         1       3m
+
+NAME                     READY   AGE
+statefulset.apps/vault   0/3     3m
+</code></pre></div></div>
+
+<blockquote>
+  <p>Note: Vault is deployed in HA mode with Consul storage backend but the pods are not in ready state, you need to initialize and unseal the Vault</p>
+</blockquote>
+
+<h2 id="initialize-and-unseal-vault">Initialize and Unseal Vault</h2>
+
+<p>After the Vault Helm chart is installed, one of the Vault servers need to be initialized. The initialization generates the credentials necessary to unseal all the Vault servers.</p>
+
+<p>View all the Vault pods in the current namespace:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>❯ kubectl get pods <span class="nt">--selector</span><span class="o">=</span><span class="s1">'app.kubernetes.io/name=vault'</span> <span class="nt">-n</span> vault-consul
+
+NAME                                        READY   STATUS    RESTARTS   AGE
+pod/vault-0                                 0/1     Running   0          4m51s
+pod/vault-1                                 0/1     Running   0          4m51s
+pod/vault-2                                 0/1     Running   0          4m51s
+</code></pre></div></div>
+
+<p>Initialize one Vault server with the default number of key shares and default key threshold:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator init
+
+Unseal Key 1: MQxywN4svq/cBFxVOemsTbasIA0Z8qwnFyOI3p3SFDv3
+Unseal Key 2: QGAHFZ+q6tXR6tCSQ7cekWTURzda3mxohquXv7va+6AX
+Unseal Key 3: vHuHc3ZNCI9mZ8x+TyAbXmjavdJTGXDCLD7aSJfHjx6T
+Unseal Key 4: 6hHPhx8hQsjQgeCj8BspL+gPUyeI+suvps0/kk9BY/Ia
+Unseal Key 5: +vBOyGddh+rCPpb1cNZ4u13VgZv4tBD8h7Z0cMEu3jg8
+
+Initial Root Token: s.HORogWa8ftxZor8f40ysXrYI
+
+Vault initialized with 5 key shares and a key threshold of 3. Please securely
+distribute the key shares printed above. When the Vault is re-sealed,
+restarted, or stopped, you must supply at least 3 of these keys to unseal it
+before it can start servicing requests.
+
+Vault does not store the generated master key. Without at least 3 keys to
+reconstruct the master key, Vault will remain permanently sealed!
+
+It is possible to generate new unseal keys, provided you have a quorum of
+existing unseal keys shares. See <span class="s2">"vault operator rekey"</span> <span class="k">for </span>more information.
+</code></pre></div></div>
+
+<p>The output displays the key shares and initial root key generated.</p>
+
+<blockquote>
+  <p><strong>Important Note</strong>: These keys are critical to both the security and the operation of Vault and should be treated as per your company’s sensitive data policy.</p>
+</blockquote>
+
+<p>Unseal the Vault server with the key shares until the key threshold is met:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator unseal &lt;Unseal Key 1&gt;
+
+Key                Value
+<span class="nt">---</span>                <span class="nt">-----</span>
+Seal Type          shamir
+Initialized        <span class="nb">true
+</span>Sealed             <span class="nb">true
+</span>Total Shares       5
+Threshold          3
+Unseal Progress    1/3
+Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0b
+Version            1.9.2
+Storage Type       consul
+HA Enabled         <span class="nb">true</span>
+</code></pre></div></div>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator unseal &lt;Unseal key 2&gt;
+
+Key                Value
+<span class="nt">---</span>                <span class="nt">-----</span>
+Seal Type          shamir
+Initialized        <span class="nb">true
+</span>Sealed             <span class="nb">true
+</span>Total Shares       5
+Threshold          3
+Unseal Progress    2/3
+Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0b
+Version            1.9.2
+Storage Type       consul
+HA Enabled         <span class="nb">true</span>
+</code></pre></div></div>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">--stdin</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tty</span><span class="o">=</span><span class="nb">true </span>vault-0 <span class="nt">-n</span> vault-consul <span class="nt">--</span> vault operator unseal &lt;Unseal Key 3&gt;
+
+Key             Value
+<span class="nt">---</span>             <span class="nt">-----</span>
+Seal Type       shamir
+Initialized     <span class="nb">true
+</span>Sealed          <span class="nb">false
+</span>Total Shares    5
+Threshold       3
+Version         1.9.2
+Storage Type    consul
+Cluster Name    vault-cluster-9c0d92a1
+Cluster ID      5a90da4a-4dfd-bff9-eaa7-bb7c9b74009f
+HA Enabled      <span class="nb">true
+</span>HA Cluster      https://vault-0.vault-internal:8201
+HA Mode         active
+Active Since    2022-04-21T11:41:24.062777848Z
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>Repeat the unseal process for all Vault server pods. When all Vault server pods are unsealed they report <code class="language-plaintext highlighter-rouge">READY 1/1</code>.</p>
+</blockquote>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get pods <span class="nt">--selector</span><span class="o">=</span><span class="s1">'app.kubernetes.io/name=vault'</span> <span class="nt">-n</span> vault-consul
+NAME                                    READY   STATUS    RESTARTS   AGE
+vault-0                                 1/1     Running   0          6m49s
+vault-1                                 1/1     Running   0          6m49s
+vault-2                                 1/1     Running   0          6m49s
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://learn.hashicorp.com/tutorials/vault/kubernetes-raft-deployment-guide?in=vault/kubernetes">kubernetes-raft-deployment-guide</a></li>
+</ul>
+
+<h2 id="todo">TODO</h2>
+
+<ul>
+  <li>Enable TLS</li>
+  <li>Use GCP KMS for auto unsealing</li>
+</ul>
+
+        </div>
+        <!-- comments -->
+        
+          <!-- disqus-comments -->
+<div class="comments" style="padding: 1rem 0">
+  <div id="disqus_thread" class="comments__article"></div>
+  <script>
+    (function () {
+      var d = document, s = d.createElement('script');
+      s.src = '//jawed.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+  </noscript>
+</div>
+<!-- /disqus-comments -->
+        
+        <!-- /comments -->
+      </div>
+    </div>
+  </div>
+</section>
+
+	<!-- footer -->
+<footer class="py-4 bg-light border-top">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+      <div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0">
+        <a href="" class="d-block pb-3"><img src="/assets/images/logo.png" class="img-fluid" alt="Jawed Salim"></a>
+      </div>
+      <div class="col-lg-4 text-center mb-4 mb-lg-0">
+        <ul class="list-inline mb-0">
+          <i>Want to get connected or just say Hello? Follow me on these social channels. </i>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0">
+        <ul class="list-inline social-icon mb-0">
+          
+          <li class="list-inline-item"><a href="https://www.linkedin.com/in/j4w3d/"><i class="ti-linkedin"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://github.com/heyjawed"><i class="ti-github"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://join.skype.com/invite/UiQ03EiXED9p"><i class="ti-skype"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://twitter.com/jawedsalim10"><i class="ti-twitter-alt"></i></a></li>
+          
+        </ul>
+      </div>
+    </div>
+    <div class="text-center mt-4">
+      <span><p>Copyright © 2022 Jawed Salim. Developed by <a href="https://getjekyllthemes.com">Getjekyllthemes</a></p>
+</span>
+    </div>
+  </div>
+</footer>
+<!-- /footer -->
+
+<!-- JS Plugins -->
+
+<script src="/assets/plugins/jQuery/jquery.min.js"></script>
+
+<script src="/assets/plugins/bootstrap/bootstrap.min.js"></script>
+
+<script src="/assets/plugins/search/lunr.min.js"></script>
+
+<script src="/assets/plugins/search/search.js"></script>
+
+
+<!-- Main Script -->
+<script src="/assets/js/script.js"></script>
+
+</body>
+
+</html>

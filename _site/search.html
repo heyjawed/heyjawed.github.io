@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Jawed Salim</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Hi, I'm Jawed Salim. A Senior DevOps Engineer @ StackExpress (APYL Software and Systems Ltd.) Noida (India) Kubernetes | Terraform | AWS | Ansible | Docker | Python">
+
+  
+
+  
+  <link rel="stylesheet" href="/assets/plugins/bootstrap/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="/assets/plugins/themify-icons/themify-icons.css">
+  
+
+  <!-- Main Stylesheet -->
+  <link href="/assets/scss/style.css" rel="stylesheet">
+
+  <!--Favicon-->
+  <link rel="shortcut icon" href="/assets/images/favicon.png " type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.png " type="image/x-icon">
+
+  <!-- google-analytics -->
+  
+
+</head>
+
+
+<body>
+	
+	<!-- navigation -->
+<header class="fixed-top navigation">
+  <div class="container">
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+      <a class="navbar-brand" href="/"><img class="img-fluid" src="/assets/images/logo.png" alt="Jawed Salim"></a>
+      <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navigation">
+        <i class="ti-menu h3"></i>
+      </button>
+
+      <div class="collapse navbar-collapse text-center" id="navigation">
+        <ul class="navbar-nav ml-auto">
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/"><i class="ti-home"></i> Home</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/about"><i class="ti-user"></i> About</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/articles"><i class="ti-menu-alt"></i> Articles</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/contact"><i class="ti-email"></i> Contact</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/tools"><i class="ti-ruler-pencil"></i> Tools</a>
+            </li>
+            
+          
+        </ul>
+        
+        <!-- search -->
+        <div class="search">
+          <button id="searchOpen" class="search-btn"><i class="ti-search"></i></button>
+          <div class="search-wrapper">
+            <form action="/search" class="h-100">
+              <input class="search-box px-4" id="search-box" name="query" type="search" placeholder="Type & Hit Enter...">
+            </form>
+            <button id="searchClose" class="search-close"><i class="ti-close text-dark"></i></button>
+          </div>
+        </div>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+<!-- /navigation -->
+
+	<div class="py-5 d-none d-lg-block"></div>
+	<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <h2>Search result for
+          <span class="text-primary">
+            <script>
+              var str=(window.location.search).substr(7);var result=str.replace("+"," ");document.write(result);</script>
+          </span>
+        </h2>
+        <div class="block shadow">
+          <ul class="list-unstyled" id="search-results"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.store = {
+    
+      "post-setup-hashicorp-vault-cluster-on-kubernetes-html": {
+        "title": "Setup Hashicorp Vault cluster on kubernetes",
+        "author": "Jawed Salim",
+        "tags": "Vault-Consul ",
+        "content": "The Vault Helm chart is the recommended way to install and configure Vault on Kubernetes. In addition to running Vault itself, the Helm chart is the primary method for installing and configuring Vault to integrate with other services such as Consul for High Availability (HA) deployments.While the Helm chart automatically sets up complex resources and exposes the configuration to meet your requirements, it does not automatically operate Vault. You are still responsible for learning how to initialize, monitor, backup, upgrade, etc. the Vault cluster.Steps we will use in this guide  Create Kubernetes Namespace  Set Up HashiCorp Helm Repo  Install Consul Storage backend  Install Vault in HA mode  Initialize and Unseal VaultCreate Kubernetes NamespaceCreate a K8s namespace.$ kubectl create ns vault-consulnamespace/vault-cluster createdView your new K8s objects.$ kubectl get all -n vault-consulSet Up HashiCorp Helm RepoHelm must be installed and configured on your machine. For help installing Helm, please refer to the Helm documentation or the Vault Installation to Minikube via Helm tutorial.Check Helm Version$ helm versionversion.BuildInfo{Version:\"v3.4.1\", GitCommit:\"c4e74854886b2efe3321e185578e6db9be0a6e29\", GitTreeState:\"dirty\", GoVersion:\"go1.15.4\"}To access the Vault and Consul Helm chart, add the Hashicorp Helm repository.$ helm repo add hashicorp https://helm.releases.hashicorp.com\"hashicorp\" has been added to your repositoriesCheck that you have access to the Consul chart.$ helm search repo hashicorp/consulNAME            \tCHART VERSION\tAPP VERSION\t    DESCRIPTIONhashicorp/consul\t0.43.0       \t1.12.0     \t    Official HashiCorp Consul ChartCheck that you have access to the Vault chart.$ helm search repo hashicorp/vaultNAME           \t    CHART VERSION\tAPP VERSION\t    DESCRIPTIONhashicorp/vault\t    0.19.0       \t1.9.2      \t    Official HashiCorp Vault ChartInstall Consul Storage backendThe Consul storage backend is used to persist Vault’s data in Consul’s key-value store. In addition to providing durable storage, inclusion of this backend will also register Vault as a service in Consul with a default health check.High Availability – the Consul storage backend supports high availability.Now you’re ready to install Consul! Install Consul on the dedicated namespace.$ helm install consul hashicorp/consul --set global.name=consul -n vault-consulNAME: consulLAST DEPLOYED: Tue Apr 21 17:01:37 2022NAMESPACE: vault-consulSTATUS: deployedREVISION: 1NOTES:Thank you for installing HashiCorp Consul!Your release is named consul.To learn more about the release, run:  $ helm status consul  $ helm get all consulConsul on Kubernetes Documentation:https://www.consul.io/docs/platform/k8sConsul on Kubernetes CLI Reference:https://www.consul.io/docs/k8s/k8s-cliCheck k8s objects in vault-consul namespace$ kubectl get all -n vault-consul --selector=app=consulNAME                      READY   STATUS    RESTARTS   AGEpod/consul-client-7dhmg   1/1     Running   0          2mpod/consul-client-jmlbd   1/1     Running   0          2mpod/consul-client-nzwfp   1/1     Running   0          2mpod/consul-server-0       1/1     Running   0          2mpod/consul-server-1       1/1     Running   0          2mpod/consul-server-2       1/1     Running   0          2mNAME                    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                                                                   AGEservice/consul-dns      ClusterIP   10.8.8.105   &lt;none&gt;        53/TCP,53/UDP                                                             2mservice/consul-server   ClusterIP   None         &lt;none&gt;        8500/TCP,8301/TCP,8301/UDP,8302/TCP,8302/UDP,8300/TCP,8600/TCP,8600/UDP   2mservice/consul-ui       ClusterIP   10.8.2.186   &lt;none&gt;        80/TCP                                                                    2mNAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGEdaemonset.apps/consul-client   3         3         3       3            3           &lt;none&gt;          2mNAME                             READY   AGEstatefulset.apps/consul-server   3/3     2m  Consul storage backend is installed and Vault can access it using address - consul-server:8500 (Consul server service name and port) in same namespaceInstall Vault in HA modeGet values.yaml file to update config options$ wget https://raw.githubusercontent.com/hashicorp/vault-helm/v0.19.0/values.yamlNow open values.yaml in your favourite editor and update following config options# Available parameters and their default values for the Vault chart.global:  enabled: true  # TLS for end-to-end encrypted transport  tlsDisable: true......injector:  # True if you want to enable vault agent injection.  enabled: true......server:  # If not set to true, Vault server will not be installed.  enabled: true  ...  ...  ha:    enabled: true    replicas: 3    ...    ...    config: |      ui = true      listener \"tcp\" {        tls_disable = 1        address = \"[::]:8200\"        cluster_address = \"[::]:8201\"      }      storage \"consul\" {        path = \"vault\"        address = \"consul-server:8500\" # &lt;consul-server-service:8500&gt;      }      service_registration \"kubernetes\" {}......Once you updated the values.yaml file, install vault$ helm install vault hashicorp/vault -n vault-consul -f values.yamlNAME: vaultLAST DEPLOYED: Tue Apr 21 17:08:31 2022NAMESPACE: vault-consulSTATUS: deployedREVISION: 1NOTES:Thank you for installing HashiCorp Vault!Now that you have deployed Vault, you should look over the docs on usingVault with Kubernetes available here:https://www.vaultproject.io/docs/Your release is named vault. To learn more about the release, try:  $ helm status vault  $ helm get manifest vaultCheck k8s objects in vault-consul namespace$ kubectl get all -n vault-consul --selector=app.kubernetes.io/instance=vaultNAME                                       READY   STATUS    RESTARTS   AGEpod/vault-0                                0/1     Running   0          3mpod/vault-1                                0/1     Running   0          3mpod/vault-2                                0/1     Running   0          3mpod/vault-agent-injector-c6d85cb5f-csfql   1/1     Running   0          3mNAME                               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)             AGEservice/vault                      ClusterIP   10.8.6.32     &lt;none&gt;        8200/TCP,8201/TCP   3mservice/vault-active               ClusterIP   10.8.15.119   &lt;none&gt;        8200/TCP,8201/TCP   3mservice/vault-agent-injector-svc   ClusterIP   10.8.10.120   &lt;none&gt;        443/TCP             30hservice/vault-internal             ClusterIP   None          &lt;none&gt;        8200/TCP,8201/TCP   3mservice/vault-standby              ClusterIP   10.8.10.62    &lt;none&gt;        8200/TCP,8201/TCP   3mNAME                                   READY   UP-TO-DATE   AVAILABLE   AGEdeployment.apps/vault-agent-injector   1/1     1            1           3mNAME                                             DESIRED   CURRENT   READY   AGEreplicaset.apps/vault-agent-injector-c6d85cb5f   1         1         1       3mNAME                     READY   AGEstatefulset.apps/vault   0/3     3m  Note: Vault is deployed in HA mode with Consul storage backend but the pods are not in ready state, you need to initialize and unseal the VaultInitialize and Unseal VaultAfter the Vault Helm chart is installed, one of the Vault servers need to be initialized. The initialization generates the credentials necessary to unseal all the Vault servers.View all the Vault pods in the current namespace:$ ❯ kubectl get pods --selector='app.kubernetes.io/name=vault' -n vault-consulNAME                                        READY   STATUS    RESTARTS   AGEpod/vault-0                                 0/1     Running   0          4m51spod/vault-1                                 0/1     Running   0          4m51spod/vault-2                                 0/1     Running   0          4m51sInitialize one Vault server with the default number of key shares and default key threshold:$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator initUnseal Key 1: MQxywN4svq/cBFxVOemsTbasIA0Z8qwnFyOI3p3SFDv3Unseal Key 2: QGAHFZ+q6tXR6tCSQ7cekWTURzda3mxohquXv7va+6AXUnseal Key 3: vHuHc3ZNCI9mZ8x+TyAbXmjavdJTGXDCLD7aSJfHjx6TUnseal Key 4: 6hHPhx8hQsjQgeCj8BspL+gPUyeI+suvps0/kk9BY/IaUnseal Key 5: +vBOyGddh+rCPpb1cNZ4u13VgZv4tBD8h7Z0cMEu3jg8Initial Root Token: s.HORogWa8ftxZor8f40ysXrYIVault initialized with 5 key shares and a key threshold of 3. Please securelydistribute the key shares printed above. When the Vault is re-sealed,restarted, or stopped, you must supply at least 3 of these keys to unseal itbefore it can start servicing requests.Vault does not store the generated master key. Without at least 3 keys toreconstruct the master key, Vault will remain permanently sealed!It is possible to generate new unseal keys, provided you have a quorum ofexisting unseal keys shares. See \"vault operator rekey\" for more information.The output displays the key shares and initial root key generated.  Important Note: These keys are critical to both the security and the operation of Vault and should be treated as per your company’s sensitive data policy.Unseal the Vault server with the key shares until the key threshold is met:$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator unseal &lt;Unseal Key 1&gt;Key                Value---                -----Seal Type          shamirInitialized        trueSealed             trueTotal Shares       5Threshold          3Unseal Progress    1/3Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0bVersion            1.9.2Storage Type       consulHA Enabled         true$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator unseal &lt;Unseal key 2&gt;Key                Value---                -----Seal Type          shamirInitialized        trueSealed             trueTotal Shares       5Threshold          3Unseal Progress    2/3Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0bVersion            1.9.2Storage Type       consulHA Enabled         true$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator unseal &lt;Unseal Key 3&gt;Key             Value---             -----Seal Type       shamirInitialized     trueSealed          falseTotal Shares    5Threshold       3Version         1.9.2Storage Type    consulCluster Name    vault-cluster-9c0d92a1Cluster ID      5a90da4a-4dfd-bff9-eaa7-bb7c9b74009fHA Enabled      trueHA Cluster      https://vault-0.vault-internal:8201HA Mode         activeActive Since    2022-04-21T11:41:24.062777848Z  Repeat the unseal process for all Vault server pods. When all Vault server pods are unsealed they report READY 1/1.$ kubectl get pods --selector='app.kubernetes.io/name=vault' -n vault-consulNAME                                    READY   STATUS    RESTARTS   AGEvault-0                                 1/1     Running   0          6m49svault-1                                 1/1     Running   0          6m49svault-2                                 1/1     Running   0          6m49sReferences  kubernetes-raft-deployment-guideTODO  Enable TLS  Use GCP KMS for auto unsealing",
+        "url": "/post/setup-hashicorp-vault-cluster-on-kubernetes.html",
+        "date": "May 23, 2022"
+      }
+      ,
+    
+      "post-welcome-to-jekyll-html": {
+        "title": "Welcome to Jekyll!",
+        "author": "John Doe",
+        "tags": "Travels ",
+        "content": "You’ll find this post in your _posts directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run jekyll serve, which launches a web server and auto-regenerates your site when a file is updated.Jekyll requires blog post files to be named according to the following format:YEAR-MONTH-DAY-title.MARKUPWhere YEAR is a four-digit number, MONTH and DAY are both two-digit numbers, and MARKUP is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.Jekyll also offers powerful support for code snippets:def print_hi(name)  puts \"Hi, #{name}\"endprint_hi('Tom')#=&gt; prints 'Hi, Tom' to STDOUT.Check out the Jekyll docs for more info on how to get the most out of Jekyll. File all bugs/feature requests at Jekyll’s GitHub repo. If you have questions, you can ask them on Jekyll Talk.",
+        "url": "/post/welcome-to-jekyll.html",
+        "date": "Aug 18, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-html": {
+        "title": "My awesome blog post",
+        "author": "Mark Dinn",
+        "tags": "Meta Data ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-4-html": {
+        "title": "My awesome blog post",
+        "author": "Mark Dinn",
+        "tags": "Hugo ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post.4.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-3-html": {
+        "title": "My awesome blog post",
+        "author": "John Doe",
+        "tags": "Hugo ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post.3.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-2-html": {
+        "title": "My awesome blog post",
+        "author": "Mark Dinn",
+        "tags": "Meta Data ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post.2.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-6-html": {
+        "title": "My awesome second blog post",
+        "author": "John Doe",
+        "tags": "Development Tools ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post-6.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-5-html": {
+        "title": "My awesome second blog post",
+        "author": "Mark Dinn",
+        "tags": "Hugo ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post-5.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-4-html": {
+        "title": "My awesome second blog post",
+        "author": "John Doe",
+        "tags": "Jekyll ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post-4.html",
+        "date": "Aug 08, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-2-html": {
+        "title": "My awesome second blog post",
+        "author": "John Doe",
+        "tags": "Design Tools ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post-2.html",
+        "date": "Aug 07, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-3-html": {
+        "title": "My awesome second blog post",
+        "author": "Mark Dinn",
+        "tags": "Development Tools ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post-3.html",
+        "date": "Aug 06, 2020"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-1-html": {
+        "title": "My awesome blog post",
+        "author": "John Doe",
+        "tags": "SEO Learning ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post.1.html",
+        "date": "Aug 03, 2020"
+      }
+      
+    
+  };
+</script>
+	<!-- footer -->
+<footer class="py-4 bg-light border-top">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+      <div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0">
+        <a href="" class="d-block pb-3"><img src="/assets/images/logo.png" class="img-fluid" alt="Jawed Salim"></a>
+      </div>
+      <div class="col-lg-4 text-center mb-4 mb-lg-0">
+        <ul class="list-inline mb-0">
+          <i>Want to get connected or just say Hello? Follow me on these social channels. </i>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0">
+        <ul class="list-inline social-icon mb-0">
+          
+          <li class="list-inline-item"><a href="https://www.linkedin.com/in/j4w3d/"><i class="ti-linkedin"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://github.com/heyjawed"><i class="ti-github"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://join.skype.com/invite/UiQ03EiXED9p"><i class="ti-skype"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://twitter.com/jawedsalim10"><i class="ti-twitter-alt"></i></a></li>
+          
+        </ul>
+      </div>
+    </div>
+    <div class="text-center mt-4">
+      <span><p>Copyright © 2022 Jawed Salim. Developed by <a href="https://getjekyllthemes.com">Getjekyllthemes</a></p>
+</span>
+    </div>
+  </div>
+</footer>
+<!-- /footer -->
+
+<!-- JS Plugins -->
+
+<script src="/assets/plugins/jQuery/jquery.min.js"></script>
+
+<script src="/assets/plugins/bootstrap/bootstrap.min.js"></script>
+
+<script src="/assets/plugins/search/lunr.min.js"></script>
+
+<script src="/assets/plugins/search/search.js"></script>
+
+
+<!-- Main Script -->
+<script src="/assets/js/script.js"></script>
+
+</body>
+
+</html>
