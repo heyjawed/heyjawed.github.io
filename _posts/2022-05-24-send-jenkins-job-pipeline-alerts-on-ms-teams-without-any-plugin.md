@@ -7,9 +7,12 @@ description : "Use Jenkins Shared Library"
 tags: [Jenkins]
 ---
 
-Pipeline has support for creating "Shared Libraries" which can be defined in external source control repositories and loaded into existing Pipelines.
+To send alerts on MS teams without using any plugin you can use `Curl` command or write a groovy funtion using Jenkins shared library option.
 
-Shared Libraries marked Load implicitly allows Pipelines to immediately use classes or global variables defined by any such libraries. To access other shared libraries, the Jenkinsfile needs to use the @Library annotation, specifying the library’s name:
+- Configure incoming webhook on MS teams
+- Create and Send message using CURL
+- Integrate with Jenkins Job/Pipeline
+
 
 ## Configure incoming webhook on MS teams
 
