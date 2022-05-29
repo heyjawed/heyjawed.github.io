@@ -5,10 +5,10 @@ layout: default
 <section class="section">
   <div class="container">
     <div class="row justify-content-between">
-      <div class="col-lg-5">
+      <div class="col-lg-5" id="showResponse">
         <h2 class="mb-4">{{ page.title }}</h2>
         <div class="content mb-4">{{ page.content }}</div>
-        <form method="POST" action="{{ site.data.parameters.contact_form_action }}" class="row">
+        <form method="POST" action="{{ site.data.parameters.contact_form_action }}" class="row" onsubmit="submitForm(event)">
           <div class="col-md-6">
             <input type="text" class="form-control mb-4" placeholder="Name" name="name" id="name">
           </div>
@@ -33,3 +33,33 @@ layout: default
     </div>
   </div>
 </section>
+
+
+<script>
+
+  function submitForm(event) {
+    // Prevent the form from submitting.
+    event.preventDefault();
+
+    // Set url for submission and collect data.
+    const url = "{{ site.data.parameters.contact_form_action }}";
+
+    const formData = new FormData(event.target);
+
+    // Submit the formData.
+    const request = new XMLHttpRequest();
+
+    request.addEventListener("readystatechange", function() {
+      if(this.readyState === 4) {
+        // console.log(this.responseText);
+        document.getElementById("showResponse").style.color = "green";
+        document.getElementById("showResponse").style.fontStyle = "italic";
+        document.getElementById("showResponse").innerText = "Your message has been sent. Thank You!";
+      }
+    });
+
+    request.open("POST", url);
+    request.send(formData);
+  }
+
+  </script>

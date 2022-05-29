@@ -36,7 +36,7 @@ description : "DevOps Engineer | Kubernetes | Terraform | AWS | Ansible | Docker
 # google analitycs ID
 google_analitycs_id : "" # your id
 # contact form action
-contact_form_action : "#" # contact form works with : https://formspree.io
+contact_form_action : "https://app.headlessforms.cloud/api/v1/form-submission/uDQ0nMpV8n" # contact form works with : https://formspree.io
 # copyright
 copyright : "Copyright &copy; 2022 Jawed Salim. Developed by [Getjekyllthemes](https://getjekyllthemes.com)"
 
