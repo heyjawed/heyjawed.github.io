@@ -10,17 +10,17 @@ layout: default
         <div class="content mb-4">{{ page.content }}</div>
         <form method="POST" action="{{ site.data.parameters.contact_form_action }}" class="row" onsubmit="submitForm(event)">
           <div class="col-md-6">
-            <input type="text" class="form-control mb-4" placeholder="Name" name="name" id="name">
+            <input type="text" class="form-control mb-4" placeholder="Name" name="name" id="name" minlength="3" required="true">
           </div>
           <div class="col-md-6">
-            <input type="email" class="form-control mb-4" placeholder="Email" name="email" id="email">
+            <input type="email" class="form-control mb-4" placeholder="Email" name="email" id="email" minlength="4" required="true">
           </div>
           <div class="col-12">
-            <input type="text" class="form-control mb-4" placeholder="Subject" name="subject" id="subject">
+            <input type="text" class="form-control mb-4" placeholder="Subject" name="subject" id="subject" minlength="3" required="true">
           </div>
           <div class="col-12">
             <textarea name="message" id="message" class="form-control mb-4" placeholder="Type You Message Here"
-              rows="5"></textarea>
+              rows="5" minlength="10" required="true"></textarea>
           </div>
           <div class="col-12">
             <button class="btn btn-primary btn-block" type="submit">Send</button>
