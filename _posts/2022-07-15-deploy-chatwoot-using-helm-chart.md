@@ -1,8 +1,10 @@
-# Deploy Chatwoot using Helm Charts
-
-This guide will help you to deploy a production ready Chatwoot instance with Helm Charts.
-
-# Intro
+---
+title:  "Deploy Chatwoot using Helm Chart"
+author: "Jawed Salim"
+date: 2022-07-15 09:35:58 +0600
+description : "Setup chatwoot on kubernetes cluster using helm chart"
+tags: [chatwoot, kubernetes]
+---
 
 Chatwoot is an open-source, self-hosted customer engagement suite. Chatwoot lets you view and manage your customer data, 
 communicate with them irrespective of which medium they use, and re-engage them based on their profile.
