@@ -2,11 +2,11 @@
 menu:
   # main menu
   main:
-  - {name: Home, url: '/', icon: 'ti-home'}
-  - {name: About, url: '/about', icon: 'ti-user'}
-  - {name: Articles, url: '/articles', icon: 'ti-menu-alt'}
-  - {name: Contact, url: '/contact', icon: 'ti-email'}
-  - {name: Tools, url: '/tools', icon: 'ti-ruler-pencil'}
+  - {name: Home, url: '/', icon: 'fa-solid fa-house'}
+  - {name: About, url: '/about', icon: 'fa-solid fa-user-tie'}
+  - {name: Articles, url: '/articles', icon: 'fa-solid fa-list-ul'}
+  - {name: Contact, url: '/contact', icon: 'fa-solid fa-envelope'}
+  # - {name: Tools, url: '/tools', icon: 'fa-solid fa-pen'}
 
 ##### Dropdown menu ######
 
