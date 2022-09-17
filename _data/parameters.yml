@@ -59,9 +59,9 @@ social:
     icon : "ti-github" # themify icon pack https://themify.me/themify-icons
     link : "https://github.com/heyjawed"
 
-  - name : "skype"
-    icon : "ti-skype" # themify icon pack https://themify.me/themify-icons
-    link : "https://join.skype.com/invite/UiQ03EiXED9p"
+  - name : "gmail"
+    icon : "ti-google" # themify icon pack https://themify.me/themify-icons
+    link : "mailto:jawed.eternal@gmail.com"
 
   - name : "twitter"
     icon : "ti-twitter-alt" # themify icon pack https://themify.me/themify-icons
