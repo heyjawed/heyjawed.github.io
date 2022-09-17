@@ -1,7 +1,7 @@
 ####################### banner #######################################
 banner:
   enable : true
-  title : "Hi 👋, I'm <span style='color: red'>Jawed Salim</span>. <br> <span style='font-size: 35px;'>A DevOps engineer, Python developer and Technophile.<span>"
+  title : "Hi 👋, I'm <span style='color: #2cae83;'>Jawed Salim</span>. <br> <span style='font-size: 35px;'>A DevOps engineer, Python developer and Technophile.<span>"
   image : "/assets/images/banner/illustration.svg"
   bg_image : "/assets/images/banner/banner-bg.svg"
 
