@@ -3,7 +3,7 @@ title:  "How to parse CSV data in Bash"
 author: "Jawed Salim"
 date: 2022-10-02 21:04:58 +0600
 description : "Setup chatwoot on kubernetes cluster using helm chart"
-tags: [Linux, bash, csv]
+tags: [Linux, Bash, CSV]
 ---
 
 A comma-separated values file is a delimited text file that uses a comma to separate values. Each line of the file is a data record. Each record consists of one or more fields, separated by commas.
