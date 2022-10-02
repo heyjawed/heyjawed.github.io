@@ -2,11 +2,11 @@
 menu:
   # main menu
   main:
-  - {name: Home, url: '/', icon: 'ti-home'}
-  - {name: About, url: '/about', icon: 'ti-user'}
-  - {name: Articles, url: '/articles', icon: 'ti-menu-alt'}
-  - {name: Contact, url: '/contact', icon: 'ti-email'}
-  - {name: Tools, url: '/tools', icon: 'ti-ruler-pencil'}
+  - {name: Home, url: '/', icon: 'fa-solid fa-house'}
+  - {name: About, url: '/about', icon: 'fa-solid fa-user-tie'}
+  - {name: Articles, url: '/articles', icon: 'fa-solid fa-list-ul'}
+  - {name: Contact, url: '/contact', icon: 'fa-solid fa-envelope'}
+  # - {name: Tools, url: '/tools', icon: 'fa-solid fa-pen'}
 
 ##### Dropdown menu ######
 
@@ -36,7 +36,7 @@ description : "DevOps Engineer | Kubernetes | Terraform | AWS | Ansible | Docker
 # google analitycs ID
 google_analitycs_id : "" # your id
 # contact form action
-contact_form_action : "#" # contact form works with : https://formspree.io
+contact_form_action : "https://app.headlessforms.cloud/api/v1/form-submission/uDQ0nMpV8n" # contact form works with : https://formspree.io
 # copyright
 copyright : "Copyright &copy; 2022 Jawed Salim. Developed by [Getjekyllthemes](https://getjekyllthemes.com)"
 
@@ -59,9 +59,9 @@ social:
     icon : "ti-github" # themify icon pack https://themify.me/themify-icons
     link : "https://github.com/heyjawed"
 
-  - name : "skype"
-    icon : "ti-skype" # themify icon pack https://themify.me/themify-icons
-    link : "https://join.skype.com/invite/UiQ03EiXED9p"
+  - name : "gmail"
+    icon : "ti-google" # themify icon pack https://themify.me/themify-icons
+    link : "mailto:jawed.eternal@gmail.com"
 
   - name : "twitter"
     icon : "ti-twitter-alt" # themify icon pack https://themify.me/themify-icons

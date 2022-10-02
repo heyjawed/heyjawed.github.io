@@ -24,6 +24,13 @@ plugins:
   - jekyll/tagging
   - jekyll-feed
 
+# mimic GitHub Pages with --safe
+whitelist:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll/tagging
+  - jekyll-feed
+
 paginate: 6
 paginate_path: "/page/:num"
 

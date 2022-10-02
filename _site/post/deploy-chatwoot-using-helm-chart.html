@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Jawed Salim</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Setup chatwoot on kubernetes cluster using helm chart">
+
+  
+
+  
+  <link rel="stylesheet" href="/assets/plugins/bootstrap/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="/assets/plugins/themify-icons/themify-icons.css">
+  
+
+  <!-- Main Stylesheet -->
+  <link href="/assets/scss/style.css" rel="stylesheet">
+
+  <!--Favicon-->
+  <link rel="shortcut icon" href="/assets/images/favicon.png " type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.png " type="image/x-icon">
+
+  <!-- google-analytics -->
+  
+
+</head>
+
+
+<body>
+	
+	<!-- navigation -->
+<header class="fixed-top navigation">
+  <div class="container">
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+      <a class="navbar-brand" href="/"><img class="img-fluid" src="/assets/images/logo.png" alt="Jawed Salim"></a>
+      <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navigation">
+        <i class="ti-menu h3"></i>
+      </button>
+
+      <div class="collapse navbar-collapse text-center" id="navigation">
+        <ul class="navbar-nav ml-auto">
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/"><i class="fa-solid fa-house"></i> Home</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/about"><i class="fa-solid fa-user-tie"></i> About</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/articles"><i class="fa-solid fa-list-ul"></i> Articles</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/contact"><i class="fa-solid fa-envelope"></i> Contact</a>
+            </li>
+            
+          
+        </ul>
+        
+        <!-- search -->
+        <div class="search">
+          <button id="searchOpen" class="search-btn"><i class="ti-search"></i></button>
+          <div class="search-wrapper">
+            <form action="/search" class="h-100">
+              <input class="search-box px-4" id="search-box" name="query" type="search" placeholder="Type & Hit Enter...">
+            </form>
+            <button id="searchClose" class="search-close"><i class="ti-close text-dark"></i></button>
+          </div>
+        </div>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+<!-- /navigation -->
+
+	<div class="py-5 d-none d-lg-block"></div>
+	<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 mx-auto block shadow mb-5">
+        <h2>Deploy Chatwoot using Helm Chart</h2>
+        <div class="mb-3 post-meta">
+          
+          By <a href="/author/jawed-salim">Jawed salim</a>,
+          Jul 15, 2022,
+          
+          
+
+          <a href="/tag/chatwoot" style="color: #9137f8fd">#chatwoot</a>
+
+          
+
+          <a href="/tag/kubernetes" style="color: #9137f8fd">#kubernetes</a>
+
+          
+          
+        </div>
+        
+        <div class="content mb-5">
+          <p>Chatwoot is an open-source, self-hosted customer engagement suite. Chatwoot lets you view and manage your customer data, 
+communicate with them irrespective of which medium they use, and re-engage them based on their profile.</p>
+
+<p>For more info., <a href="https://www.chatwoot.com/">visit site</a></p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+  <li>Kubernetes 1.16+</li>
+  <li>Helm 3.1.0+</li>
+  <li>PV provisioner support in the underlying infrastructure</li>
+</ul>
+
+<p>The helm installation will create 3 “Persistent Volume Claims” for redis, rails and postgres. Setup up a default “Storage Class” (for automatic PV) or create 3 “Persistent Volumes” with the size of 8GB, before installing chatwoot. If the “Persistent Volume Claims” do not claim the “Persistent Volumes”, leave storageClassName blank (inside the PV .yaml files).</p>
+
+<h2 id="create-namespace">Create Namespace</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create ns chatwoot
+</code></pre></div></div>
+
+<h2 id="installing-the-chart">Installing the chart</h2>
+
+<p>To access the chart, add the repo</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm repo add chatwoot https://chatwoot.github.io/charts
+<span class="s2">"chatwoot"</span> has been added to your repositories
+</code></pre></div></div>
+
+<p>Check that you have access to the chart.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm search repo chatwoot
+NAME             	CHART VERSION	APP VERSION	DESCRIPTION
+chatwoot/chatwoot	0.8.6        	v2.5.0     	Open-source customer engagement suite, an alter...
+</code></pre></div></div>
+
+<p>Donwload the <code class="language-plaintext highlighter-rouge">values.yaml</code> file</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget <span class="nt">-O</span> values.yaml https://raw.githubusercontent.com/chatwoot/charts/main/charts/chatwoot/values.yaml
+</code></pre></div></div>
+
+<p>Open the <code class="language-plaintext highlighter-rouge">values.yaml</code> file in your favourite editor and update the config options</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="na">image</span><span class="pi">:</span>
+  <span class="na">repository</span><span class="pi">:</span> <span class="s">chatwoot/chatwoot</span>
+  <span class="na">tag</span><span class="pi">:</span> <span class="s">v2.5.0</span>
+  <span class="na">pullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">chatwoot</span>
+  <span class="na">internlPort</span><span class="pi">:</span> <span class="m">3000</span>
+  <span class="na">targetPort</span><span class="pi">:</span> <span class="m">3000</span>
+  <span class="na">type</span><span class="pi">:</span> <span class="s">ClusterIP</span> <span class="c1"># you can use LoadBalancer</span>
+  <span class="na">annotations</span><span class="pi">:</span> <span class="pi">{}</span>
+    <span class="c1"># For example</span>
+    <span class="c1">#  service.beta.kubernetes.io/aws-load-balancer-type: external</span>
+    <span class="c1">#  service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip</span>
+    <span class="c1">#  service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing</span>
+<span class="s">..</span>
+<span class="s">..</span>
+<span class="na">ingress</span><span class="pi">:</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="c1"># For Kubernetes &gt;= 1.18 you should specify the ingress-controller via the field ingressClassName</span>
+  <span class="c1"># See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress</span>
+  <span class="c1"># ingressClassName: nginx</span>
+  <span class="na">annotations</span><span class="pi">:</span>
+    <span class="na">nginx.ingress.kubernetes.io/rewrite-target</span><span class="pi">:</span> <span class="s">/</span>
+    <span class="na">cert-manager.io/cluster-issuer</span><span class="pi">:</span> <span class="s">letsencrypt-prod</span>
+    <span class="na">nginx.ingress.kubernetes.io/server-snippet</span><span class="pi">:</span> <span class="pi">|</span>
+        <span class="s">underscores_in_headers on;</span>
+    <span class="c1"># kubernetes.io/ingress.class: nginx</span>
+    <span class="c1"># kubernetes.io/tls-acme: "true"</span>
+  <span class="na">hosts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s2">"</span><span class="s">chatwoot.&lt;your-domain-name&gt;"</span>
+      <span class="na">paths</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+          <span class="na">pathType</span><span class="pi">:</span> <span class="s">Prefix</span>
+          <span class="na">backend</span><span class="pi">:</span>
+            <span class="na">service</span><span class="pi">:</span>
+              <span class="na">name</span><span class="pi">:</span> <span class="s">chatwoot</span>
+              <span class="na">port</span><span class="pi">:</span>
+                <span class="na">number</span><span class="pi">:</span> <span class="m">3000</span>
+  <span class="na">tls</span><span class="pi">:</span>
+   <span class="pi">-</span> <span class="na">secretName</span><span class="pi">:</span> <span class="s">chatwoot-tls</span>
+     <span class="na">hosts</span><span class="pi">:</span>
+       <span class="pi">-</span> <span class="s2">"</span><span class="s">chatwoot.&lt;your-domain-name&gt;"</span>
+
+<span class="na">postgresql</span><span class="pi">:</span>
+  <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">nameOverride</span><span class="pi">:</span> <span class="s">chatwoot-postgresql</span>
+  <span class="na">postgresqlDatabase</span><span class="pi">:</span> <span class="s">chatwoot_production</span>
+  <span class="na">postgresqlUsername</span><span class="pi">:</span> <span class="s">postgres</span>
+  <span class="na">postgresqlPassword</span><span class="pi">:</span> <span class="s">postgres</span>
+  <span class="c1"># The following variables are only used when internal PG is disabled</span>
+  <span class="c1"># postgresqlHost: postgres</span>
+  <span class="c1"># postgresqlPort: 5432</span>
+  <span class="c1"># When defined the `postgresqlPassword` field is ignored</span>
+  <span class="c1"># existingSecret: secret-name</span>
+  <span class="c1"># existingSecretKey: postgresql-password</span>
+
+<span class="c1"># ENVIRONMENT VARIABLES</span>
+<span class="na">env</span><span class="pi">:</span>
+  <span class="na">FRONTEND_URL</span><span class="pi">:</span> <span class="s2">"</span><span class="s">chatwoot.&lt;your-domain-name&gt;"</span>
+  <span class="s">...</span>
+  <span class="s">...</span>
+
+  <span class="c1"># SMTP details</span>
+  <span class="na">SMTP_ADDRESS</span><span class="pi">:</span> <span class="s2">"</span><span class="s">&lt;smtp-hostname&gt;"</span>
+  <span class="na">SMTP_AUTHENTICATION</span><span class="pi">:</span> <span class="s">plain</span>
+  <span class="na">SMTP_ENABLE_STARTTLS_AUTO</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">SMTP_OPENSSL_VERIFY_MODE</span><span class="pi">:</span> <span class="s">none</span>
+  <span class="na">SMTP_PASSWORD</span><span class="pi">:</span> <span class="s2">"</span><span class="s">&lt;smtp-user-pass&gt;"</span>
+  <span class="na">SMTP_PORT</span><span class="pi">:</span> <span class="m">587</span>
+  <span class="na">SMTP_USERNAME</span><span class="pi">:</span> <span class="s2">"</span><span class="s">&lt;smtp-user-name&gt;"</span>
+  <span class="s">...</span>
+  <span class="s">...</span>
+
+</code></pre></div></div>
+
+<p>Install the chart with the release name <code class="language-plaintext highlighter-rouge">chatwoot</code> and use above updated <code class="language-plaintext highlighter-rouge">values.yaml</code> file:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm <span class="nb">install </span>chatwoot chatwoot/chatwoot <span class="nt">-f</span> values.yaml <span class="nt">-n</span> chatwoot
+</code></pre></div></div>
+
+<p>Check status of helm release</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>helm list <span class="nt">-n</span> chatwoot
+
+NAME    	NAMESPACE	REVISION	UPDATED                             	STATUS  	CHART         	APP VERSION
+chatwoot	chatwoot 	1       	2022-05-24 16:46:39.470008 +0530 IST	deployed	chatwoot-0.8.6	v2.5.0
+</code></pre></div></div>
+
+<h2 id="deployment-status">Deployment Status</h2>
+
+<p>Chack Status of services, pods, deployments etc</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>get all <span class="nt">-n</span> chatwoot
+
+NAME                                     READY   STATUS    RESTARTS      AGE
+pod/chatwoot-chatwoot-postgresql-0       1/1     Running   1 <span class="o">(</span>42h ago<span class="o">)</span>   42h
+pod/chatwoot-chatwoot-redis-master-0     1/1     Running   2 <span class="o">(</span>42h ago<span class="o">)</span>   42h
+pod/chatwoot-chatwoot-redis-replicas-0   1/1     Running   2 <span class="o">(</span>42h ago<span class="o">)</span>   42h
+pod/chatwoot-chatwoot-redis-replicas-1   1/1     Running   0             42h
+pod/chatwoot-chatwoot-redis-replicas-2   1/1     Running   3 <span class="o">(</span>42h ago<span class="o">)</span>   42h
+pod/chatwoot-worker-6f5c5f966b-bppv2     1/1     Running   0             40h
+pod/chatwoot-worker-6f5c5f966b-psf85     1/1     Running   0             40h
+pod/chatwoot-web-6c77558f59-njbm9        1/1     Running   0             40h
+
+NAME                                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+service/chatwoot-chatwoot-postgresql-headless   ClusterIP   None             &lt;none&gt;        5432/TCP   42h
+service/chatwoot-chatwoot-redis-headless        ClusterIP   None             &lt;none&gt;        6379/TCP   42h
+service/chatwoot                                ClusterIP   10.152.183.13    &lt;none&gt;        3000/TCP   42h
+service/chatwoot-chatwoot-redis-replicas        ClusterIP   10.152.183.185   &lt;none&gt;        6379/TCP   42h
+service/chatwoot-chatwoot-postgresql            ClusterIP   10.152.183.116   &lt;none&gt;        5432/TCP   42h
+service/chatwoot-chatwoot-redis-master          ClusterIP   10.152.183.29    &lt;none&gt;        6379/TCP   42h
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/chatwoot-worker   2/2     2            2           42h
+deployment.apps/chatwoot-web      1/1     1            1           42h
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/chatwoot-worker-6f5c5f966b   2         2         2       42h
+replicaset.apps/chatwoot-web-6c77558f59      1         1         1       42h
+
+NAME                                                READY   AGE
+statefulset.apps/chatwoot-chatwoot-postgresql       1/1     42h
+statefulset.apps/chatwoot-chatwoot-redis-master     1/1     42h
+statefulset.apps/chatwoot-chatwoot-redis-replicas   3/3     42h
+
+</code></pre></div></div>
+
+<p>Check ingress</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nv">$ </span>kubect get ingress <span class="nt">-n</span> chatwoot
+NAME       CLASS    HOSTS                     ADDRESS     PORTS     AGE
+chatwoot   public   chatwoot.&lt;your-domain-name&gt;   127.0.0.1   80, 443   42h
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://www.chatwoot.com/docs/self-hosted/deployment/helm-charts">Deploy Chatwoot using Helm Charts</a></li>
+</ul>
+
+        </div>
+        <!-- comments -->
+        
+          <!-- disqus-comments -->
+<div class="comments" style="padding: 1rem 0">
+  <div id="disqus_thread" class="comments__article"></div>
+  <script>
+    (function () {
+      var d = document, s = d.createElement('script');
+      s.src = '//jawed.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+  </noscript>
+</div>
+<!-- /disqus-comments -->
+        
+        <!-- /comments -->
+      </div>
+    </div>
+  </div>
+</section>
+
+	<!-- footer -->
+<footer class="py-2 bg-light border-top">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+      <div class="col-lg-4 text-center text-lg-left mb-2 mb-lg-0">
+        <a href="" class="pb-1"><img src="/assets/images/logo.png" class="img-fluid" alt="Jawed Salim"></a>
+      </div>
+      <div class="col-lg-4 text-center mb-1 mb-lg-0">
+        <ul class="list-inline mb-0">
+          <i>Want to get connected or just say Hello? Follow me on these social channels. </i>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-lg-right text-center mb-2 mb-lg-0">
+        <ul class="list-inline social-icon mb-0">
+          
+          <li class="list-inline-item"><a href="https://www.linkedin.com/in/j4w3d/"><i class="ti-linkedin"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://github.com/heyjawed"><i class="ti-github"></i></a></li>
+          
+          <li class="list-inline-item"><a href="mailto:jawed.eternal@gmail.com"><i class="ti-google"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://twitter.com/jawedsalim10"><i class="ti-twitter-alt"></i></a></li>
+          
+        </ul>
+      </div>
+    </div>
+    <div class="text-center mt-2">
+      <span><p>Copyright © 2022 Jawed Salim. Developed by <a href="https://getjekyllthemes.com">Getjekyllthemes</a></p>
+</span>
+    </div>
+  </div>
+</footer>
+<!-- /footer -->
+
+<!-- JS Plugins -->
+
+<script src="/assets/plugins/jQuery/jquery.min.js"></script>
+
+<script src="/assets/plugins/bootstrap/bootstrap.min.js"></script>
+
+<script src="/assets/plugins/search/lunr.min.js"></script>
+
+<script src="/assets/plugins/search/search.js"></script>
+
+
+<!-- Main Script -->
+<script src="/assets/js/script.js"></script>
+<script src="https://kit.fontawesome.com/3ca9ce1adf.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Jawed Salim</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Use Jenkins Shared Library">
+
+  
+
+  
+  <link rel="stylesheet" href="/assets/plugins/bootstrap/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="/assets/plugins/themify-icons/themify-icons.css">
+  
+
+  <!-- Main Stylesheet -->
+  <link href="/assets/scss/style.css" rel="stylesheet">
+
+  <!--Favicon-->
+  <link rel="shortcut icon" href="/assets/images/favicon.png " type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.png " type="image/x-icon">
+
+  <!-- google-analytics -->
+  
+
+</head>
+
+
+<body>
+	
+	<!-- navigation -->
+<header class="fixed-top navigation">
+  <div class="container">
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+      <a class="navbar-brand" href="/"><img class="img-fluid" src="/assets/images/logo.png" alt="Jawed Salim"></a>
+      <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navigation">
+        <i class="ti-menu h3"></i>
+      </button>
+
+      <div class="collapse navbar-collapse text-center" id="navigation">
+        <ul class="navbar-nav ml-auto">
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/"><i class="fa-solid fa-house"></i> Home</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/about"><i class="fa-solid fa-user-tie"></i> About</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/articles"><i class="fa-solid fa-list-ul"></i> Articles</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/contact"><i class="fa-solid fa-envelope"></i> Contact</a>
+            </li>
+            
+          
+        </ul>
+        
+        <!-- search -->
+        <div class="search">
+          <button id="searchOpen" class="search-btn"><i class="ti-search"></i></button>
+          <div class="search-wrapper">
+            <form action="/search" class="h-100">
+              <input class="search-box px-4" id="search-box" name="query" type="search" placeholder="Type & Hit Enter...">
+            </form>
+            <button id="searchClose" class="search-close"><i class="ti-close text-dark"></i></button>
+          </div>
+        </div>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+<!-- /navigation -->
+
+	<div class="py-5 d-none d-lg-block"></div>
+	<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 mx-auto block shadow mb-5">
+        <h2>Send Jenkins job/pipeline alerts on MS Teams without using any plugin</h2>
+        <div class="mb-3 post-meta">
+          
+          By <a href="/author/jawed-salim">Jawed salim</a>,
+          May 24, 2022,
+          
+          
+
+          <a href="/tag/jenkins" style="color: #9137f8fd">#jenkins</a>
+
+          
+          
+        </div>
+        
+        <div class="content mb-5">
+          <p>To send alerts on MS teams without using any plugin you can use <code class="language-plaintext highlighter-rouge">Curl</code> command or write a groovy funtion using Jenkins shared library option.</p>
+
+<ul>
+  <li>Configure incoming webhook on MS teams</li>
+  <li>Create and Send message using CURL</li>
+  <li>Integrate with Jenkins Job/Pipeline</li>
+</ul>
+
+<h2 id="configure-incoming-webhook-on-ms-teams">Configure incoming webhook on MS teams</h2>
+
+<p>Refer - https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook</p>
+
+<blockquote>
+  <p>Note down the Webhook URL somewhere for later use</p>
+</blockquote>
+
+<h2 id="create-and-send-message-using-curl">Create and Send message using CURL</h2>
+
+<p>Refer - https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL</p>
+
+<p><strong>Example message</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+curl <span class="nt">--request</span> POST &lt;WEBHOOK_URL&gt; <span class="se">\</span>
+     <span class="nt">-H</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+     <span class="nt">-d</span> <span class="s1">'{"text": "Hello World"}'</span>
+</code></pre></div></div>
+
+<h2 id="integrate-with-jenkins-jobpipeline">Integrate with Jenkins Job/Pipeline</h2>
+
+<ul>
+  <li><strong>Login</strong> to Jenkins UI, Go to <strong>Manage Jenkins</strong> –&gt; <strong>Mange Credentials [Security]</strong></li>
+  <li><strong>Add creadential</strong> for Webhook URL
+    <ul>
+      <li><em>Kind</em>   - <code class="language-plaintext highlighter-rouge">Secret Text</code></li>
+      <li><em>Secret</em> - <code class="language-plaintext highlighter-rouge">&lt;Webhook_url&gt;</code></li>
+      <li><em>ID</em>     - unique identifier like: <code class="language-plaintext highlighter-rouge">ms_teams_webhook</code></li>
+    </ul>
+  </li>
+  <li>Now use the below example code inside your pipeline code</li>
+</ul>
+
+<p><strong>Example code</strong></p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+
+<span class="n">script</span> <span class="o">{</span>
+        <span class="c1">// Get MS Teams webhook URL from credential</span>
+        <span class="n">withCredentials</span><span class="o">([</span><span class="n">string</span><span class="o">(</span><span class="nl">credentialsId:</span> <span class="s1">'ms_teams_webhook'</span><span class="o">,</span> <span class="nl">variable:</span> <span class="s1">'WEBHOOK_SECRET'</span><span class="o">)])</span> <span class="o">{</span>
+            <span class="c1">// Store Webhook URL in a variable</span>
+            <span class="n">URL_WEBHOOK</span> <span class="o">=</span> <span class="n">WEBHOOK_SECRET</span>
+        <span class="o">}</span>
+
+        <span class="c1">// echo "$URL_WEBHOOK"</span>
+
+        <span class="n">sh</span> <span class="s2">"""#!/bin/bash
+
+        curl --location --request POST '$URL_WEBHOOK' \
+            --header 'Content-Type: application/json'   \
+            --data-raw '{
+                "@type": "MessageCard",
+                "@context": "http://schema.org/extensions",
+                "themeColor": "bd8feb",
+                "summary": "Notification from [${env.JOB_NAME}]",
+                "sections": [{
+                    "activityTitle": "Notification from [${env.JOB_NAME}]",
+                    "activitySubtitle": "&lt;span style=\'\\\'\'color: #bd8feb;\'\\\'\'&gt;Latest status of build #${env.BUILD_NUMBER}&lt;/span&gt;",
+                    "activityImage": "https://www.jenkins.io/images/logos/jenkins/jenkins.png",
+                    "facts": [
+                        {
+                            "name": "Pipeline",
+                            "value": "[${env.JOB_NAME}](${env.BUILD_URL}/console)"
+                        },
+                        {
+                            "name": "Git Branch",
+                            "value": "`${GIT_BRANCH}`"
+                        },
+                        {
+                            "name": "Build Number",
+                            "value": "${env.BUILD_DISPLAY_NAME}"
+                        },
+                        {
+                            "name": "Build Status",
+                            "value": "STARTED"
+                        },
+                        {
+                            "name": "Total Runtime",
+                            "value": "${currentBuild.durationString}"
+                        }],
+                    "markdown": true
+                }],
+                "potentialAction": [{
+                    "@type": "OpenUri",
+                    "name": "View Build",
+                    "targets": [{
+                    "os": "default",
+                    "uri": "${env.BUILD_URL}"
+                }]
+            }]
+        }'
+    """</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+        </div>
+        <!-- comments -->
+        
+          <!-- disqus-comments -->
+<div class="comments" style="padding: 1rem 0">
+  <div id="disqus_thread" class="comments__article"></div>
+  <script>
+    (function () {
+      var d = document, s = d.createElement('script');
+      s.src = '//jawed.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+  </noscript>
+</div>
+<!-- /disqus-comments -->
+        
+        <!-- /comments -->
+      </div>
+    </div>
+  </div>
+</section>
+
+	<!-- footer -->
+<footer class="py-2 bg-light border-top">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+      <div class="col-lg-4 text-center text-lg-left mb-2 mb-lg-0">
+        <a href="" class="pb-1"><img src="/assets/images/logo.png" class="img-fluid" alt="Jawed Salim"></a>
+      </div>
+      <div class="col-lg-4 text-center mb-1 mb-lg-0">
+        <ul class="list-inline mb-0">
+          <i>Want to get connected or just say Hello? Follow me on these social channels. </i>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-lg-right text-center mb-2 mb-lg-0">
+        <ul class="list-inline social-icon mb-0">
+          
+          <li class="list-inline-item"><a href="https://www.linkedin.com/in/j4w3d/"><i class="ti-linkedin"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://github.com/heyjawed"><i class="ti-github"></i></a></li>
+          
+          <li class="list-inline-item"><a href="mailto:jawed.eternal@gmail.com"><i class="ti-google"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://twitter.com/jawedsalim10"><i class="ti-twitter-alt"></i></a></li>
+          
+        </ul>
+      </div>
+    </div>
+    <div class="text-center mt-2">
+      <span><p>Copyright © 2022 Jawed Salim. Developed by <a href="https://getjekyllthemes.com">Getjekyllthemes</a></p>
+</span>
+    </div>
+  </div>
+</footer>
+<!-- /footer -->
+
+<!-- JS Plugins -->
+
+<script src="/assets/plugins/jQuery/jquery.min.js"></script>
+
+<script src="/assets/plugins/bootstrap/bootstrap.min.js"></script>
+
+<script src="/assets/plugins/search/lunr.min.js"></script>
+
+<script src="/assets/plugins/search/search.js"></script>
+
+
+<!-- Main Script -->
+<script src="/assets/js/script.js"></script>
+<script src="https://kit.fontawesome.com/3ca9ce1adf.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

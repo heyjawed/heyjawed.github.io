@@ -2,28 +2,28 @@
 layout: default
 ---
 
-<section class="section">
+<section class="section" style="padding-top: 5px; padding-bottom: 5px;">
   <div class="container">
     <div class="row justify-content-between">
-      <div class="col-lg-5">
+      <div class="col-lg-5" id="showResponse">
         <h2 class="mb-4">{{ page.title }}</h2>
         <div class="content mb-4">{{ page.content }}</div>
-        <form method="POST" action="{{ site.data.parameters.contact_form_action }}" class="row">
+        <form method="POST" action="{{ site.data.parameters.contact_form_action }}" class="row" onsubmit="submitForm(event)">
           <div class="col-md-6">
-            <input type="text" class="form-control mb-4" placeholder="Name" name="name" id="name">
+            <input type="text" class="form-control mb-4" placeholder="Name" name="name" id="name" minlength="3" required="true">
           </div>
           <div class="col-md-6">
-            <input type="email" class="form-control mb-4" placeholder="Email" name="email" id="email">
+            <input type="email" class="form-control mb-4" placeholder="Email" name="email" id="email" minlength="4" required="true">
           </div>
           <div class="col-12">
-            <input type="text" class="form-control mb-4" placeholder="Subject" name="subject" id="subject">
+            <input type="text" class="form-control mb-4" placeholder="Subject" name="subject" id="subject" minlength="3" required="true">
           </div>
           <div class="col-12">
             <textarea name="message" id="message" class="form-control mb-4" placeholder="Type You Message Here"
-              rows="5"></textarea>
+              rows="5" minlength="10" required="true"></textarea>
           </div>
           <div class="col-12">
-            <button class="btn btn-primary btn-block" type="submit">Send</button>
+            <button class="btn btn-outline-primary btn-block" type="submit">Send</button>
           </div>
         </form>
       </div>
@@ -33,3 +33,33 @@ layout: default
     </div>
   </div>
 </section>
+
+
+<script>
+
+  function submitForm(event) {
+    // Prevent the form from submitting.
+    event.preventDefault();
+
+    // Set url for submission and collect data.
+    const url = "{{ site.data.parameters.contact_form_action }}";
+
+    const formData = new FormData(event.target);
+
+    // Submit the formData.
+    const request = new XMLHttpRequest();
+
+    request.addEventListener("readystatechange", function() {
+      if(this.readyState === 4) {
+        // console.log(this.responseText);
+        document.getElementById("showResponse").style.color = "green";
+        document.getElementById("showResponse").style.fontStyle = "italic";
+        document.getElementById("showResponse").innerText = "Your message has been sent. Thank You!";
+      }
+    });
+
+    request.open("POST", url);
+    request.send(formData);
+  }
+
+  </script>

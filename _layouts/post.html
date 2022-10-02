@@ -13,8 +13,8 @@ layout : default
           {{ page.date | date: '%b %d, %Y' }},
           {% if page.tags.size >= 1 %}
           {% for tag in page.tags %}
-          <!-- <a href="{{ '/tag/' | relative_url }}{{ tag | slugify }}">{{ tag | capitalize }}</a> -->
-          <span>{{ tag | capitalize }}</span>
+
+          <a href="{{ 'tag/' | relative_url }}{{ tag | slugify }}" style="color: #9137f8fd">#{{ tag | slugify | replace: "-", "_" }}</a>
 
           {% endfor %}
           {% endif %}

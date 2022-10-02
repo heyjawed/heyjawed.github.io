@@ -121,7 +121,7 @@
 
       &::before {
         content: "\2022";
-        color: red;
+        color: $primary-color;
         font-weight: bold;
         display: inline-block;
         width: 1em;

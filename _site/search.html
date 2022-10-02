@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Jawed Salim</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Hi, I'm Jawed Salim. A Senior DevOps Engineer @ StackExpress (APYL Software and Systems Ltd.) Noida (India) Kubernetes | Terraform | AWS | Ansible | Docker | Python">
+
+  
+
+  
+  <link rel="stylesheet" href="/assets/plugins/bootstrap/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="/assets/plugins/themify-icons/themify-icons.css">
+  
+
+  <!-- Main Stylesheet -->
+  <link href="/assets/scss/style.css" rel="stylesheet">
+
+  <!--Favicon-->
+  <link rel="shortcut icon" href="/assets/images/favicon.png " type="image/x-icon">
+  <link rel="icon" href="/assets/images/favicon.png " type="image/x-icon">
+
+  <!-- google-analytics -->
+  
+
+</head>
+
+
+<body>
+	
+	<!-- navigation -->
+<header class="fixed-top navigation">
+  <div class="container">
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+      <a class="navbar-brand" href="/"><img class="img-fluid" src="/assets/images/logo.png" alt="Jawed Salim"></a>
+      <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navigation">
+        <i class="ti-menu h3"></i>
+      </button>
+
+      <div class="collapse navbar-collapse text-center" id="navigation">
+        <ul class="navbar-nav ml-auto">
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/"><i class="fa-solid fa-house"></i> Home</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/about"><i class="fa-solid fa-user-tie"></i> About</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/articles"><i class="fa-solid fa-list-ul"></i> Articles</a>
+            </li>
+            
+          
+            
+
+            <li class="nav-item">
+              <a class="nav-link" href="/contact"><i class="fa-solid fa-envelope"></i> Contact</a>
+            </li>
+            
+          
+        </ul>
+        
+        <!-- search -->
+        <div class="search">
+          <button id="searchOpen" class="search-btn"><i class="ti-search"></i></button>
+          <div class="search-wrapper">
+            <form action="/search" class="h-100">
+              <input class="search-box px-4" id="search-box" name="query" type="search" placeholder="Type & Hit Enter...">
+            </form>
+            <button id="searchClose" class="search-close"><i class="ti-close text-dark"></i></button>
+          </div>
+        </div>
+        
+      </div>
+    </nav>
+  </div>
+</header>
+<!-- /navigation -->
+
+	<div class="py-5 d-none d-lg-block"></div>
+	<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <h2>Search result for
+          <span class="text-primary">
+            <script>
+              var str=(window.location.search).substr(7);var result=str.replace("+"," ");document.write(result);</script>
+          </span>
+        </h2>
+        <div class="block shadow">
+          <ul class="list-unstyled" id="search-results"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.store = {
+    
+      "post-deploy-chatwoot-using-helm-chart-html": {
+        "title": "Deploy Chatwoot using Helm Chart",
+        "author": "Jawed Salim",
+        "tags": "chatwoot kubernetes ",
+        "content": "Chatwoot is an open-source, self-hosted customer engagement suite. Chatwoot lets you view and manage your customer data, communicate with them irrespective of which medium they use, and re-engage them based on their profile.For more info., visit sitePrerequisites  Kubernetes 1.16+  Helm 3.1.0+  PV provisioner support in the underlying infrastructureThe helm installation will create 3 “Persistent Volume Claims” for redis, rails and postgres. Setup up a default “Storage Class” (for automatic PV) or create 3 “Persistent Volumes” with the size of 8GB, before installing chatwoot. If the “Persistent Volume Claims” do not claim the “Persistent Volumes”, leave storageClassName blank (inside the PV .yaml files).Create Namespacekubectl create ns chatwootInstalling the chartTo access the chart, add the repo$ helm repo add chatwoot https://chatwoot.github.io/charts\"chatwoot\" has been added to your repositoriesCheck that you have access to the chart.$ helm search repo chatwootNAME             \tCHART VERSION\tAPP VERSION\tDESCRIPTIONchatwoot/chatwoot\t0.8.6        \tv2.5.0     \tOpen-source customer engagement suite, an alter...Donwload the values.yaml filewget -O values.yaml https://raw.githubusercontent.com/chatwoot/charts/main/charts/chatwoot/values.yamlOpen the values.yaml file in your favourite editor and update the config optionsimage:  repository: chatwoot/chatwoot  tag: v2.5.0  pullPolicy: IfNotPresentservices:  name: chatwoot  internlPort: 3000  targetPort: 3000  type: ClusterIP # you can use LoadBalancer  annotations: {}    # For example    #  service.beta.kubernetes.io/aws-load-balancer-type: external    #  service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip    #  service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing....ingress:  enabled: true  # For Kubernetes &gt;= 1.18 you should specify the ingress-controller via the field ingressClassName  # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress  # ingressClassName: nginx  annotations:    nginx.ingress.kubernetes.io/rewrite-target: /    cert-manager.io/cluster-issuer: letsencrypt-prod    nginx.ingress.kubernetes.io/server-snippet: |        underscores_in_headers on;    # kubernetes.io/ingress.class: nginx    # kubernetes.io/tls-acme: \"true\"  hosts:    - host: \"chatwoot.&lt;your-domain-name&gt;\"      paths:        - path: /          pathType: Prefix          backend:            service:              name: chatwoot              port:                number: 3000  tls:   - secretName: chatwoot-tls     hosts:       - \"chatwoot.&lt;your-domain-name&gt;\"postgresql:  enabled: true  nameOverride: chatwoot-postgresql  postgresqlDatabase: chatwoot_production  postgresqlUsername: postgres  postgresqlPassword: postgres  # The following variables are only used when internal PG is disabled  # postgresqlHost: postgres  # postgresqlPort: 5432  # When defined the `postgresqlPassword` field is ignored  # existingSecret: secret-name  # existingSecretKey: postgresql-password# ENVIRONMENT VARIABLESenv:  FRONTEND_URL: \"chatwoot.&lt;your-domain-name&gt;\"  ...  ...  # SMTP details  SMTP_ADDRESS: \"&lt;smtp-hostname&gt;\"  SMTP_AUTHENTICATION: plain  SMTP_ENABLE_STARTTLS_AUTO: true  SMTP_OPENSSL_VERIFY_MODE: none  SMTP_PASSWORD: \"&lt;smtp-user-pass&gt;\"  SMTP_PORT: 587  SMTP_USERNAME: \"&lt;smtp-user-name&gt;\"  ...  ...Install the chart with the release name chatwoot and use above updated values.yaml file:helm install chatwoot chatwoot/chatwoot -f values.yaml -n chatwootCheck status of helm release$ helm list -n chatwootNAME    \tNAMESPACE\tREVISION\tUPDATED                             \tSTATUS  \tCHART         \tAPP VERSIONchatwoot\tchatwoot \t1       \t2022-05-24 16:46:39.470008 +0530 IST\tdeployed\tchatwoot-0.8.6\tv2.5.0Deployment StatusChack Status of services, pods, deployments etc$ get all -n chatwootNAME                                     READY   STATUS    RESTARTS      AGEpod/chatwoot-chatwoot-postgresql-0       1/1     Running   1 (42h ago)   42hpod/chatwoot-chatwoot-redis-master-0     1/1     Running   2 (42h ago)   42hpod/chatwoot-chatwoot-redis-replicas-0   1/1     Running   2 (42h ago)   42hpod/chatwoot-chatwoot-redis-replicas-1   1/1     Running   0             42hpod/chatwoot-chatwoot-redis-replicas-2   1/1     Running   3 (42h ago)   42hpod/chatwoot-worker-6f5c5f966b-bppv2     1/1     Running   0             40hpod/chatwoot-worker-6f5c5f966b-psf85     1/1     Running   0             40hpod/chatwoot-web-6c77558f59-njbm9        1/1     Running   0             40hNAME                                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGEservice/chatwoot-chatwoot-postgresql-headless   ClusterIP   None             &lt;none&gt;        5432/TCP   42hservice/chatwoot-chatwoot-redis-headless        ClusterIP   None             &lt;none&gt;        6379/TCP   42hservice/chatwoot                                ClusterIP   10.152.183.13    &lt;none&gt;        3000/TCP   42hservice/chatwoot-chatwoot-redis-replicas        ClusterIP   10.152.183.185   &lt;none&gt;        6379/TCP   42hservice/chatwoot-chatwoot-postgresql            ClusterIP   10.152.183.116   &lt;none&gt;        5432/TCP   42hservice/chatwoot-chatwoot-redis-master          ClusterIP   10.152.183.29    &lt;none&gt;        6379/TCP   42hNAME                              READY   UP-TO-DATE   AVAILABLE   AGEdeployment.apps/chatwoot-worker   2/2     2            2           42hdeployment.apps/chatwoot-web      1/1     1            1           42hNAME                                         DESIRED   CURRENT   READY   AGEreplicaset.apps/chatwoot-worker-6f5c5f966b   2         2         2       42hreplicaset.apps/chatwoot-web-6c77558f59      1         1         1       42hNAME                                                READY   AGEstatefulset.apps/chatwoot-chatwoot-postgresql       1/1     42hstatefulset.apps/chatwoot-chatwoot-redis-master     1/1     42hstatefulset.apps/chatwoot-chatwoot-redis-replicas   3/3     42hCheck ingress$ kubect get ingress -n chatwootNAME       CLASS    HOSTS                     ADDRESS     PORTS     AGEchatwoot   public   chatwoot.&lt;your-domain-name&gt;   127.0.0.1   80, 443   42hReferences  Deploy Chatwoot using Helm Charts",
+        "url": "/post/deploy-chatwoot-using-helm-chart.html",
+        "date": "Jul 15, 2022"
+      }
+      ,
+    
+      "post-send-jenkins-job-pipeline-alerts-on-ms-teams-without-any-plugin-html": {
+        "title": "Send Jenkins job/pipeline alerts on MS Teams without using any plugin",
+        "author": "Jawed Salim",
+        "tags": "Jenkins ",
+        "content": "To send alerts on MS teams without using any plugin you can use Curl command or write a groovy funtion using Jenkins shared library option.  Configure incoming webhook on MS teams  Create and Send message using CURL  Integrate with Jenkins Job/PipelineConfigure incoming webhook on MS teamsRefer - https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook  Note down the Webhook URL somewhere for later useCreate and Send message using CURLRefer - https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURLExample messagecurl --request POST &lt;WEBHOOK_URL&gt; \\     -H 'Content-Type: application/json' \\     -d '{\"text\": \"Hello World\"}'Integrate with Jenkins Job/Pipeline  Login to Jenkins UI, Go to Manage Jenkins –&gt; Mange Credentials [Security]  Add creadential for Webhook URL          Kind   - Secret Text      Secret - &lt;Webhook_url&gt;      ID     - unique identifier like: ms_teams_webhook        Now use the below example code inside your pipeline codeExample codescript {        // Get MS Teams webhook URL from credential        withCredentials([string(credentialsId: 'ms_teams_webhook', variable: 'WEBHOOK_SECRET')]) {            // Store Webhook URL in a variable            URL_WEBHOOK = WEBHOOK_SECRET        }        // echo \"$URL_WEBHOOK\"        sh \"\"\"#!/bin/bash        curl --location --request POST '$URL_WEBHOOK' \\            --header 'Content-Type: application/json'   \\            --data-raw '{                \"@type\": \"MessageCard\",                \"@context\": \"http://schema.org/extensions\",                \"themeColor\": \"bd8feb\",                \"summary\": \"Notification from [${env.JOB_NAME}]\",                \"sections\": [{                    \"activityTitle\": \"Notification from [${env.JOB_NAME}]\",                    \"activitySubtitle\": \"&lt;span style=\\'\\\\\\'\\'color: #bd8feb;\\'\\\\\\'\\'&gt;Latest status of build #${env.BUILD_NUMBER}&lt;/span&gt;\",                    \"activityImage\": \"https://www.jenkins.io/images/logos/jenkins/jenkins.png\",                    \"facts\": [                        {                            \"name\": \"Pipeline\",                            \"value\": \"[${env.JOB_NAME}](${env.BUILD_URL}/console)\"                        },                        {                            \"name\": \"Git Branch\",                            \"value\": \"`${GIT_BRANCH}`\"                        },                        {                            \"name\": \"Build Number\",                            \"value\": \"${env.BUILD_DISPLAY_NAME}\"                        },                        {                            \"name\": \"Build Status\",                            \"value\": \"STARTED\"                        },                        {                            \"name\": \"Total Runtime\",                            \"value\": \"${currentBuild.durationString}\"                        }],                    \"markdown\": true                }],                \"potentialAction\": [{                    \"@type\": \"OpenUri\",                    \"name\": \"View Build\",                    \"targets\": [{                    \"os\": \"default\",                    \"uri\": \"${env.BUILD_URL}\"                }]            }]        }'    \"\"\"}",
+        "url": "/post/send-jenkins-job-pipeline-alerts-on-ms-teams-without-any-plugin.html",
+        "date": "May 24, 2022"
+      }
+      ,
+    
+      "post-setup-hashicorp-vault-cluster-on-kubernetes-html": {
+        "title": "Setup Hashicorp Vault cluster on kubernetes",
+        "author": "Jawed Salim",
+        "tags": "Vault-Consul ",
+        "content": "The Vault Helm chart is the recommended way to install and configure Vault on Kubernetes. In addition to running Vault itself, the Helm chart is the primary method for installing and configuring Vault to integrate with other services such as Consul for High Availability (HA) deployments.While the Helm chart automatically sets up complex resources and exposes the configuration to meet your requirements, it does not automatically operate Vault. You are still responsible for learning how to initialize, monitor, backup, upgrade, etc. the Vault cluster.Steps we will use in this guide  Create Kubernetes Namespace  Set Up HashiCorp Helm Repo  Install Consul Storage backend  Install Vault in HA mode  Initialize and Unseal VaultCreate Kubernetes NamespaceCreate a K8s namespace.$ kubectl create ns vault-consulnamespace/vault-cluster createdView your new K8s objects.$ kubectl get all -n vault-consulSet Up HashiCorp Helm RepoHelm must be installed and configured on your machine. For help installing Helm, please refer to the Helm documentation or the Vault Installation to Minikube via Helm tutorial.Check Helm Version$ helm versionversion.BuildInfo{Version:\"v3.4.1\", GitCommit:\"c4e74854886b2efe3321e185578e6db9be0a6e29\", GitTreeState:\"dirty\", GoVersion:\"go1.15.4\"}To access the Vault and Consul Helm chart, add the Hashicorp Helm repository.$ helm repo add hashicorp https://helm.releases.hashicorp.com\"hashicorp\" has been added to your repositoriesCheck that you have access to the Consul chart.$ helm search repo hashicorp/consulNAME            \tCHART VERSION\tAPP VERSION\t    DESCRIPTIONhashicorp/consul\t0.43.0       \t1.12.0     \t    Official HashiCorp Consul ChartCheck that you have access to the Vault chart.$ helm search repo hashicorp/vaultNAME           \t    CHART VERSION\tAPP VERSION\t    DESCRIPTIONhashicorp/vault\t    0.19.0       \t1.9.2      \t    Official HashiCorp Vault ChartInstall Consul Storage backendThe Consul storage backend is used to persist Vault’s data in Consul’s key-value store. In addition to providing durable storage, inclusion of this backend will also register Vault as a service in Consul with a default health check.High Availability – the Consul storage backend supports high availability.Now you’re ready to install Consul! Install Consul on the dedicated namespace.$ helm install consul hashicorp/consul --set global.name=consul -n vault-consulNAME: consulLAST DEPLOYED: Tue Apr 21 17:01:37 2022NAMESPACE: vault-consulSTATUS: deployedREVISION: 1NOTES:Thank you for installing HashiCorp Consul!Your release is named consul.To learn more about the release, run:  $ helm status consul  $ helm get all consulConsul on Kubernetes Documentation:https://www.consul.io/docs/platform/k8sConsul on Kubernetes CLI Reference:https://www.consul.io/docs/k8s/k8s-cliCheck k8s objects in vault-consul namespace$ kubectl get all -n vault-consul --selector=app=consulNAME                      READY   STATUS    RESTARTS   AGEpod/consul-client-7dhmg   1/1     Running   0          2mpod/consul-client-jmlbd   1/1     Running   0          2mpod/consul-client-nzwfp   1/1     Running   0          2mpod/consul-server-0       1/1     Running   0          2mpod/consul-server-1       1/1     Running   0          2mpod/consul-server-2       1/1     Running   0          2mNAME                    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                                                                   AGEservice/consul-dns      ClusterIP   10.8.8.105   &lt;none&gt;        53/TCP,53/UDP                                                             2mservice/consul-server   ClusterIP   None         &lt;none&gt;        8500/TCP,8301/TCP,8301/UDP,8302/TCP,8302/UDP,8300/TCP,8600/TCP,8600/UDP   2mservice/consul-ui       ClusterIP   10.8.2.186   &lt;none&gt;        80/TCP                                                                    2mNAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGEdaemonset.apps/consul-client   3         3         3       3            3           &lt;none&gt;          2mNAME                             READY   AGEstatefulset.apps/consul-server   3/3     2m  Consul storage backend is installed and Vault can access it using address - consul-server:8500 (Consul server service name and port) in same namespaceInstall Vault in HA modeGet values.yaml file to update config options$ wget https://raw.githubusercontent.com/hashicorp/vault-helm/v0.19.0/values.yamlNow open values.yaml in your favourite editor and update following config options# Available parameters and their default values for the Vault chart.global:  enabled: true  # TLS for end-to-end encrypted transport  tlsDisable: true......injector:  # True if you want to enable vault agent injection.  enabled: true......server:  # If not set to true, Vault server will not be installed.  enabled: true  ...  ...  ha:    enabled: true    replicas: 3    ...    ...    config: |      ui = true      listener \"tcp\" {        tls_disable = 1        address = \"[::]:8200\"        cluster_address = \"[::]:8201\"      }      storage \"consul\" {        path = \"vault\"        address = \"consul-server:8500\" # &lt;consul-server-service:8500&gt;      }      service_registration \"kubernetes\" {}......Once you updated the values.yaml file, install vault$ helm install vault hashicorp/vault -n vault-consul -f values.yamlNAME: vaultLAST DEPLOYED: Tue Apr 21 17:08:31 2022NAMESPACE: vault-consulSTATUS: deployedREVISION: 1NOTES:Thank you for installing HashiCorp Vault!Now that you have deployed Vault, you should look over the docs on usingVault with Kubernetes available here:https://www.vaultproject.io/docs/Your release is named vault. To learn more about the release, try:  $ helm status vault  $ helm get manifest vaultCheck k8s objects in vault-consul namespace$ kubectl get all -n vault-consul --selector=app.kubernetes.io/instance=vaultNAME                                       READY   STATUS    RESTARTS   AGEpod/vault-0                                0/1     Running   0          3mpod/vault-1                                0/1     Running   0          3mpod/vault-2                                0/1     Running   0          3mpod/vault-agent-injector-c6d85cb5f-csfql   1/1     Running   0          3mNAME                               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)             AGEservice/vault                      ClusterIP   10.8.6.32     &lt;none&gt;        8200/TCP,8201/TCP   3mservice/vault-active               ClusterIP   10.8.15.119   &lt;none&gt;        8200/TCP,8201/TCP   3mservice/vault-agent-injector-svc   ClusterIP   10.8.10.120   &lt;none&gt;        443/TCP             30hservice/vault-internal             ClusterIP   None          &lt;none&gt;        8200/TCP,8201/TCP   3mservice/vault-standby              ClusterIP   10.8.10.62    &lt;none&gt;        8200/TCP,8201/TCP   3mNAME                                   READY   UP-TO-DATE   AVAILABLE   AGEdeployment.apps/vault-agent-injector   1/1     1            1           3mNAME                                             DESIRED   CURRENT   READY   AGEreplicaset.apps/vault-agent-injector-c6d85cb5f   1         1         1       3mNAME                     READY   AGEstatefulset.apps/vault   0/3     3m  Note: Vault is deployed in HA mode with Consul storage backend but the pods are not in ready state, you need to initialize and unseal the VaultInitialize and Unseal VaultAfter the Vault Helm chart is installed, one of the Vault servers need to be initialized. The initialization generates the credentials necessary to unseal all the Vault servers.View all the Vault pods in the current namespace:$ ❯ kubectl get pods --selector='app.kubernetes.io/name=vault' -n vault-consulNAME                                        READY   STATUS    RESTARTS   AGEpod/vault-0                                 0/1     Running   0          4m51spod/vault-1                                 0/1     Running   0          4m51spod/vault-2                                 0/1     Running   0          4m51sInitialize one Vault server with the default number of key shares and default key threshold:$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator initUnseal Key 1: MQxywN4svq/cBFxVOemsTbasIA0Z8qwnFyOI3p3SFDv3Unseal Key 2: QGAHFZ+q6tXR6tCSQ7cekWTURzda3mxohquXv7va+6AXUnseal Key 3: vHuHc3ZNCI9mZ8x+TyAbXmjavdJTGXDCLD7aSJfHjx6TUnseal Key 4: 6hHPhx8hQsjQgeCj8BspL+gPUyeI+suvps0/kk9BY/IaUnseal Key 5: +vBOyGddh+rCPpb1cNZ4u13VgZv4tBD8h7Z0cMEu3jg8Initial Root Token: s.HORogWa8ftxZor8f40ysXrYIVault initialized with 5 key shares and a key threshold of 3. Please securelydistribute the key shares printed above. When the Vault is re-sealed,restarted, or stopped, you must supply at least 3 of these keys to unseal itbefore it can start servicing requests.Vault does not store the generated master key. Without at least 3 keys toreconstruct the master key, Vault will remain permanently sealed!It is possible to generate new unseal keys, provided you have a quorum ofexisting unseal keys shares. See \"vault operator rekey\" for more information.The output displays the key shares and initial root key generated.  Important Note: These keys are critical to both the security and the operation of Vault and should be treated as per your company’s sensitive data policy.Unseal the Vault server with the key shares until the key threshold is met:$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator unseal &lt;Unseal Key 1&gt;Key                Value---                -----Seal Type          shamirInitialized        trueSealed             trueTotal Shares       5Threshold          3Unseal Progress    1/3Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0bVersion            1.9.2Storage Type       consulHA Enabled         true$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator unseal &lt;Unseal key 2&gt;Key                Value---                -----Seal Type          shamirInitialized        trueSealed             trueTotal Shares       5Threshold          3Unseal Progress    2/3Unseal Nonce       2ecd4812-c279-7de1-ca4c-bc052c5f4b0bVersion            1.9.2Storage Type       consulHA Enabled         true$ kubectl exec --stdin=true --tty=true vault-0 -n vault-consul -- vault operator unseal &lt;Unseal Key 3&gt;Key             Value---             -----Seal Type       shamirInitialized     trueSealed          falseTotal Shares    5Threshold       3Version         1.9.2Storage Type    consulCluster Name    vault-cluster-9c0d92a1Cluster ID      5a90da4a-4dfd-bff9-eaa7-bb7c9b74009fHA Enabled      trueHA Cluster      https://vault-0.vault-internal:8201HA Mode         activeActive Since    2022-04-21T11:41:24.062777848Z  Repeat the unseal process for all Vault server pods. When all Vault server pods are unsealed they report READY 1/1.$ kubectl get pods --selector='app.kubernetes.io/name=vault' -n vault-consulNAME                                    READY   STATUS    RESTARTS   AGEvault-0                                 1/1     Running   0          6m49svault-1                                 1/1     Running   0          6m49svault-2                                 1/1     Running   0          6m49sReferences  kubernetes-raft-deployment-guideTODO  Enable TLS  Use GCP KMS for auto unsealing",
+        "url": "/post/setup-hashicorp-vault-cluster-on-kubernetes.html",
+        "date": "May 23, 2022"
+      }
+      ,
+    
+      "post-my-awesome-blog-post-html": {
+        "title": "My awesome blog post",
+        "author": "Mark Dinn",
+        "tags": "Meta Data ",
+        "content": "Are you Developer and recently started your own business and Already made a website to ensure online presence and wants to reach more people. but you are not getting as much as response from your targeted customer or you are unable to reach them. SEO(Search engine optimization)is the cheapest way to reach your customer or client. After 2000 the Internet is more easy access to common people and most of the netizens to find out information search on google/yahoo/bing like a search engine. So if your site ranks at the top of the SERP for your target keywords then sure you will get more valuable traffic to your site and it will help you a lot to grow your business.Above Paragraph, you see SERP or Keywords that are common SEO Term so Before starting learning SEO let’s learn the term used by the SEO expert. It will smoothen your learning journey. Or if you are wishing to hire an SEO guy it will help you his task he/she doing and understand he/she going on the right path. So not making delay let dive…Algorithm: “Algorithm is a process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.” It is its definition. In SEO we basically mean A very sophisticated and complex program used by the search engine to find out data and indexing it, And when a user gives a data query this program also decides the best result to place in the SERP in order. All search engines use multiple algorithms combination on their data collection and result giving process in different stages.Algorithm Change: All the search engine service providers always try to give the best results to their users. So they always working on updating, refreshing or making and implementing new algorithms. The search engine service provider never revealed the exact date of rolling out any updates or new algorithms to make an effective date. Normally they give a boundary of time like this week or this month, we are going to rolling out a major update or applying new this algorithm. They give this new algorithm a name and they always call it by the given name. Like, google spider, Google panda, etc. Most of the time After one to two week we can see and understand the update or change impact but sometimes it also happens quicker also.      Algorithm Update: Search Engines regularly making minor changes in their system they normally don’t give an official announcement. But SEO related blogs and journals give the news what the changes made. So Keep update regular visit this industry-related community is important. And when the Major update come You must observe your ranking behavior and if you find you’ve got the penalty then quickly take necessary step undereating the guidelines given by search engine company.        Algorithm Refresh: Search engine operator after a regular interval re-run the existing algorithm to find out the new spammer.        New Algorithm: Improving search quality google and other search engines regularly bringing new algorithms. All new algorithm has its special purpose to serve in the total search engine working process.  ",
+        "url": "/post/my-awesome-blog-post.html",
+        "date": "Aug 08, 2020"
+      }
+      
+    
+  };
+</script>
+	<!-- footer -->
+<footer class="py-2 bg-light border-top">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+      <div class="col-lg-4 text-center text-lg-left mb-2 mb-lg-0">
+        <a href="" class="pb-1"><img src="/assets/images/logo.png" class="img-fluid" alt="Jawed Salim"></a>
+      </div>
+      <div class="col-lg-4 text-center mb-1 mb-lg-0">
+        <ul class="list-inline mb-0">
+          <i>Want to get connected or just say Hello? Follow me on these social channels. </i>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-lg-right text-center mb-2 mb-lg-0">
+        <ul class="list-inline social-icon mb-0">
+          
+          <li class="list-inline-item"><a href="https://www.linkedin.com/in/j4w3d/"><i class="ti-linkedin"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://github.com/heyjawed"><i class="ti-github"></i></a></li>
+          
+          <li class="list-inline-item"><a href="mailto:jawed.eternal@gmail.com"><i class="ti-google"></i></a></li>
+          
+          <li class="list-inline-item"><a href="https://twitter.com/jawedsalim10"><i class="ti-twitter-alt"></i></a></li>
+          
+        </ul>
+      </div>
+    </div>
+    <div class="text-center mt-2">
+      <span><p>Copyright © 2022 Jawed Salim. Developed by <a href="https://getjekyllthemes.com">Getjekyllthemes</a></p>
+</span>
+    </div>
+  </div>
+</footer>
+<!-- /footer -->
+
+<!-- JS Plugins -->
+
+<script src="/assets/plugins/jQuery/jquery.min.js"></script>
+
+<script src="/assets/plugins/bootstrap/bootstrap.min.js"></script>
+
+<script src="/assets/plugins/search/lunr.min.js"></script>
+
+<script src="/assets/plugins/search/search.js"></script>
+
+
+<!-- Main Script -->
+<script src="/assets/js/script.js"></script>
+<script src="https://kit.fontawesome.com/3ca9ce1adf.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

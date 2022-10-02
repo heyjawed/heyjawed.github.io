@@ -6,11 +6,7 @@
     {{ post.date | date: '%b %d, %Y' }},
     {% if post.tags.size >= 1 %}
     {% for tag in post.tags %}
-    <!-- <a href="{{ 'tag/' | relative_url }}{{ tag | slugify }}">{{ tag | capitalize }}</a> -->
-    <span style="color: rgb(255, 97, 97); border: 2px solid rgb(255, 97, 97); border-radius: 6px;  padding-left: 5px; padding-right: 5px;">
-      #{{ tag | capitalize }}
-    </span>
-
+    <a href="{{ 'tag/' | relative_url }}{{ tag | slugify }}" style="color: #9137f8fd">#{{ tag | slugify | replace: "-", "_" }}</a>
     {% endfor %}
     {% endif %}
   </div>
