@@ -100,6 +100,6 @@ git commit -m "Fix (SRE-100): Bug preventing users from submitting the subscribe
 
 Below are the some excellent resources which help you to enhance your git knowledge and to become a professional "VCS":
 
-- https://docs.github.com/en/get-started/quickstart/set-up-git
-- https://git-scm.com/book/en/v2
-- https://learngitbranching.js.org/
+- [https://docs.github.com/en/get-started/quickstart/set-up-git](https://docs.github.com/en/get-started/quickstart/set-up-git)
+- [https://git-scm.com/book/en/v2](https://git-scm.com/book/en/v2)
+- [https://learngitbranching.js.org/](https://learngitbranching.js.org/)
