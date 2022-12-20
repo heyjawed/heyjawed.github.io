@@ -1,4 +1,196 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-09-18T01:55:43+05:30</updated><id>http://localhost:4000/feed.xml</id><title type="html">Jawed Salim</title><subtitle>Hi, I'm Jawed Salim. A Senior DevOps Engineer @ StackExpress (APYL Software and Systems Ltd.) Noida (India) Kubernetes | Terraform | AWS | Ansible | Docker | Python</subtitle><entry><title type="html">Deploy Chatwoot using Helm Chart</title><link href="http://localhost:4000/post/deploy-chatwoot-using-helm-chart.html" rel="alternate" type="text/html" title="Deploy Chatwoot using Helm Chart" /><published>2022-07-15T09:05:58+05:30</published><updated>2022-07-15T09:05:58+05:30</updated><id>http://localhost:4000/post/deploy-chatwoot-using-helm-chart</id><content type="html" xml:base="http://localhost:4000/post/deploy-chatwoot-using-helm-chart.html"><![CDATA[<p>Chatwoot is an open-source, self-hosted customer engagement suite. Chatwoot lets you view and manage your customer data, 
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-10-02T21:50:01+05:30</updated><id>http://localhost:4000/feed.xml</id><title type="html">Jawed Salim</title><subtitle>Hi, I'm Jawed Salim. A Senior DevOps Engineer @ StackExpress (APYL Software and Systems Ltd.) Noida (India) Kubernetes | Terraform | AWS | Ansible | Docker | Python</subtitle><entry><title type="html">How to parse CSV data in Bash</title><link href="http://localhost:4000/post/parse-csv-data-in-bash.html" rel="alternate" type="text/html" title="How to parse CSV data in Bash" /><published>2022-10-02T20:34:58+05:30</published><updated>2022-10-02T20:34:58+05:30</updated><id>http://localhost:4000/post/parse-csv-data-in-bash</id><content type="html" xml:base="http://localhost:4000/post/parse-csv-data-in-bash.html"><![CDATA[<p>A comma-separated values file is a delimited text file that uses a comma to separate values. Each line of the file is a data record. Each record consists of one or more fields, separated by commas.</p>
+
+<h2 id="some-sample-data">Some Sample Data</h2>
+
+<p>You can easily generate some sample CSV data, using sites like <a href="https://www.onlinedatagenerator.com/">Online Data Generator</a>. You can define the fields you want and choose how many rows of data you want. Your data is generated using realistic dummy values and downloaded to your computer.</p>
+
+<p>We created a file containing 100 rows of dummy employee information:</p>
+
+<ul>
+  <li><strong>id</strong>: A simple unique integer value.</li>
+  <li><strong>firstname</strong>: The first name of the person.</li>
+  <li><strong>lastname</strong>: The last name of the person.</li>
+  <li><strong>job-title</strong>: The person’s job title.</li>
+  <li><strong>email-address</strong>: The person’s email address.</li>
+  <li><strong>branch</strong>: The company branch they work in.</li>
+  <li><strong>state</strong>: The state the branch is located in.</li>
+</ul>
+
+<p>Some CSV files have a header line that lists the field names. Our sample file has one. Here’s the top of our file:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">id,firstname,lastname,job-title,email-address,branch,state</span>
+<span class="s">1,Georgia,Welsch,Doctor,Georgia_Welsch6001@nickia.com,Columbus,West Virginia</span>
+<span class="s">2,Molly,Clifford,Lecturer,Molly_Clifford2666@joiniaa.com,Moreno Valley,Florida</span>
+<span class="s">3,Eduardo,Barrett,Accountant,Eduardo_Barrett934@typill.biz,Detroit,Alabama</span>
+<span class="s">4,Tom,Ellison,Biologist,Tom_Ellison2515@joiniaa.com,Tokyo,North Dakota</span>
+<span class="s">5,Harvey,Giles,Inspector,Harvey_Giles9110@typill.biz,Moreno Valley,Maine</span>
+<span class="s">6,Rick,Butler,Baker,Rick_Butler8563@zorer.org,Saint Paul,Vermont</span>
+<span class="s">7,Sienna,Neal,Healthcare Specialist,Sienna_Neal1487@typill.biz,New Orleans,Texas</span>
+<span class="s">8,Lily,Armstrong,Software Engineer,Lily_Armstrong2045@infotech44.tech,Zurich,Hawaii</span>
+<span class="s">9,Kendra,Addis,IT Support Staff,Kendra_Addis9070@naiker.biz,San Diego,Texas</span>
+</code></pre></div></div>
+
+<h2 id="parsing-data-form-the-csv-file">Parsing Data Form the CSV file</h2>
+
+<p>Let’s write a script that will read the CSV file and extract the fields from each record. Copy this script into an editor, and save it to a file called <code class="language-plaintext highlighter-rouge">"field.sh."</code></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#! /bin/bash</span>
+
+<span class="k">while </span><span class="nv">IFS</span><span class="o">=</span><span class="s2">","</span> <span class="nb">read</span> <span class="nt">-r</span> <span class="nb">id </span>firstname lastname jobtitle email branch state
+<span class="k">do
+  </span><span class="nb">echo</span> <span class="s2">"Record ID: </span><span class="nv">$id</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">"Firstname: </span><span class="nv">$firstname</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">" Lastname: </span><span class="nv">$lastname</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">"Job Title: </span><span class="nv">$jobtitle</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">"Email add: </span><span class="nv">$email</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">" Branch: </span><span class="nv">$branch</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">" State: </span><span class="nv">$state</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">""</span>
+<span class="k">done</span> &lt; &lt;<span class="o">(</span><span class="nb">tail</span> <span class="nt">-n</span> +2 sample.csv<span class="o">)</span>
+</code></pre></div></div>
+
+<p>There’s quite a bit packed into our little script. Let’s break it down.</p>
+
+<p>We’re using a <code class="language-plaintext highlighter-rouge">while</code> loop. As long as the <code class="language-plaintext highlighter-rouge">while</code> loop condition resolves to true, the body of the <code class="language-plaintext highlighter-rouge">while</code> loop will be executed. The body of the loop is quite simple. A collection of <code class="language-plaintext highlighter-rouge">echo</code> statements are used to print the values of some variables to the terminal window.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">while</code> loop condition is more interesting than the body of the loop. We specify that a comma should be used as the internal field separator, with the <code class="language-plaintext highlighter-rouge">IFS=","</code> statement. The <code class="language-plaintext highlighter-rouge">IFS</code> is an environment variable. The read command refers to its value when parsing sequences of text.</p>
+
+<p>We’re using the read command’s <code class="language-plaintext highlighter-rouge">-r</code> (retain backslashes) option to ignore any backslashes that may be in the data. They’ll be treated as regular characters.</p>
+
+<p>The text that the read command parses is stored in a set of variables named after the CSV fields. They could just as easily have been named <code class="language-plaintext highlighter-rouge">field1, field2, ... field7</code> , but meaningful names make life easier.</p>
+
+<p>The data is obtained as the output from the <code class="language-plaintext highlighter-rouge">tail</code> command. We’re using <code class="language-plaintext highlighter-rouge">tail</code> because it gives us a simple way to skip over the header line of the CSV file. The <code class="language-plaintext highlighter-rouge">-n +2</code> (line number) option tells <code class="language-plaintext highlighter-rouge">tail</code> to start reading at line number two.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">&lt;(...)</code> construct is called process substitution. It causes Bash to accept the output of a process as though it were coming from a file descriptor. This is then redirected into the <code class="language-plaintext highlighter-rouge">while</code> loop, providing the text that the read command will parse.</p>
+
+<p>Make the script executable using the <code class="language-plaintext highlighter-rouge">chmod</code> command. You’ll need to do this each time you copy a script from this article. Substitute the name of the appropriate script in each case.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod</span> +x field.sh
+</code></pre></div></div>
+
+<p>When we run the script, the records are correctly split into their constituent fields, with each field stored in a different variable.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./field.sh
+</code></pre></div></div>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">Record ID</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">Firstname</span><span class="pi">:</span> <span class="s">Georgia</span>
+<span class="na">Lastname</span><span class="pi">:</span> <span class="s">Welsch</span>
+<span class="na">Job Title</span><span class="pi">:</span> <span class="s">Doctor</span>
+<span class="na">Email add</span><span class="pi">:</span> <span class="s">Georgia_Welsch6001@nickia.com</span>
+<span class="na">Branch</span><span class="pi">:</span> <span class="s">Columbus</span>
+<span class="na">State</span><span class="pi">:</span> <span class="s">West Virginia</span>
+
+<span class="na">Record ID</span><span class="pi">:</span> <span class="m">2</span>
+<span class="na">Firstname</span><span class="pi">:</span> <span class="s">Molly</span>
+<span class="na">Lastname</span><span class="pi">:</span> <span class="s">Clifford</span>
+<span class="na">Job Title</span><span class="pi">:</span> <span class="s">Lecturer</span>
+<span class="na">Email add</span><span class="pi">:</span> <span class="s">Molly_Clifford2666@joiniaa.com</span>
+<span class="na">Branch</span><span class="pi">:</span> <span class="s">Moreno Valley</span>
+<span class="na">State</span><span class="pi">:</span> <span class="s">Florida</span>
+
+<span class="nn">...</span>
+<span class="nn">...</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Each record is printed as a set of fields.</p>
+</blockquote>
+
+<h2 id="selecting-fields">Selecting Fields</h2>
+
+<p>Perhaps we don’t want or need to retrieve every field. We can obtain a selection of fields by incorporating the cut command.</p>
+
+<p>This script is called <code class="language-plaintext highlighter-rouge">"select.sh."</code></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="k">while </span><span class="nv">IFS</span><span class="o">=</span><span class="s2">","</span> <span class="nb">read</span> <span class="nt">-r</span> <span class="nb">id </span>jobtitle branch state
+<span class="k">do
+  </span><span class="nb">echo</span> <span class="s2">"Record ID: </span><span class="nv">$id</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">"Job Title: </span><span class="nv">$jobtitle</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">" Branch: </span><span class="nv">$branch</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">" State: </span><span class="nv">$state</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">""</span>
+<span class="k">done</span> &lt; &lt;<span class="o">(</span><span class="nb">cut</span> <span class="nt">-d</span> <span class="s2">","</span> <span class="nt">-f1</span>,4,6,7 sample.csv | <span class="nb">tail</span> <span class="nt">-n</span> +2<span class="o">)</span>
+</code></pre></div></div>
+
+<p>We’ve added the <code class="language-plaintext highlighter-rouge">cut</code> command into the process substitution clause. We’re using the <code class="language-plaintext highlighter-rouge">-d</code> (delimiter) option to tell <code class="language-plaintext highlighter-rouge">cut</code> to use commas <code class="language-plaintext highlighter-rouge">","</code> as the delimiter. The <code class="language-plaintext highlighter-rouge">-f</code> (field) option tells <code class="language-plaintext highlighter-rouge">cut</code> we want fields <code class="language-plaintext highlighter-rouge">one, four, six, and seven</code>. Those four fields are read into four variables, which get printed in the body of the while loop.</p>
+
+<p>This is what we get when we run the script.</p>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">.</span><span class="o">/</span><span class="n">select.sh</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">Record ID</span><span class="pi">:</span> <span class="m">1</span>
+<span class="na">Lastname</span><span class="pi">:</span> <span class="s">Welsch</span>
+<span class="na">Branch</span><span class="pi">:</span> <span class="s">Columbus</span>
+<span class="na">State</span><span class="pi">:</span> <span class="s">West Virginia</span>
+
+<span class="na">Record ID</span><span class="pi">:</span> <span class="m">2</span>
+<span class="na">Lastname</span><span class="pi">:</span> <span class="s">Clifford</span>
+<span class="na">Branch</span><span class="pi">:</span> <span class="s">Moreno Valley</span>
+<span class="na">State</span><span class="pi">:</span> <span class="s">Florida</span>
+
+<span class="nn">...</span>
+<span class="nn">...</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>By adding the cut command, we’re able to select the fields we want and ignore the ones we don’t.</p>
+</blockquote>
+
+<h2 id="the-csvkit-toolkit">The csvkit Toolkit</h2>
+
+<p>The CSV toolkit <code class="language-plaintext highlighter-rouge">csvkit</code> is a collection of utilities expressly created to help work with CSV files. You’ll need to install it on your computer.</p>
+
+<p>To install it on Ubuntu, use this command:</p>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sudo</span><span class="w"> </span><span class="n">apt</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">csvkit</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If we pass the name of a CSV file to it, the csvlook utility displays a table showing the contents of each field. The field content is displayed to show what the field contents represent, not as they’re stored in the CSV file.</p>
+
+<p>Let’s try csvlook with our problematic “sample2.csv” file.</p>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">csvlook</span><span class="w"> </span><span class="n">sample.csv</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">|</span><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">firstname</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">lastname</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">job</span><span class="o">-</span><span class="n">title</span><span class="w">                   </span><span class="o">|</span><span class="w"> </span><span class="n">email</span><span class="o">-</span><span class="n">address</span><span class="w">                      </span><span class="o">|</span><span class="w"> </span><span class="n">branch</span><span class="w">          </span><span class="o">|</span><span class="w"> </span><span class="n">state</span><span class="w">          </span><span class="o">|</span><span class="w">
+</span><span class="o">|</span><span class="w"> </span><span class="o">---</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">----------</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">----------</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">---------------------------</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">----------------------------------</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">---------------</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">--------------</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span><span class="o">|</span><span class="w">   </span><span class="m">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Georgia</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Welsch</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">Doctor</span><span class="w">                      </span><span class="o">|</span><span class="w"> </span><span class="n">Georgia_Welsch6001</span><span class="o">@</span><span class="n">nickia.com</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">Columbus</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">West</span><span class="w"> </span><span class="n">Virginia</span><span class="w">  </span><span class="o">|</span><span class="w">
+</span><span class="o">|</span><span class="w">   </span><span class="m">2</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Molly</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">Clifford</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">Lecturer</span><span class="w">                    </span><span class="o">|</span><span class="w"> </span><span class="n">Molly_Clifford2666</span><span class="o">@</span><span class="n">joiniaa.com</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">Moreno</span><span class="w"> </span><span class="n">Valley</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">Florida</span><span class="w">        </span><span class="o">|</span><span class="w">
+</span><span class="o">|</span><span class="w">   </span><span class="m">3</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Eduardo</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Barrett</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Accountant</span><span class="w">                  </span><span class="o">|</span><span class="w"> </span><span class="n">Eduardo_Barrett934</span><span class="o">@</span><span class="n">typill.biz</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">Detroit</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="n">Alabama</span><span class="w">        </span><span class="o">|</span><span class="w">
+</span></code></pre></div></div>
+
+<p>All of the fields are correctly displayed. This proves the problem isn’t the CSV. The problem is our scripts are too simplistic to interpret the CSV correctly.</p>
+
+<p>To select specific columns, use the csvcut command. The <code class="language-plaintext highlighter-rouge">-c</code> (column) option can be used with field names or column numbers, or a mix of both.</p>
+
+<p>Suppose we need to extract the <code class="language-plaintext highlighter-rouge">first and last names, job titles, and email addresses</code> from each record, but we want to have the name order as <code class="language-plaintext highlighter-rouge">"last name, first name."</code> All we need to do is put the field names or numbers in the order we want them.</p>
+
+<p>These three commands are all equivalent.</p>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">csvcut</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="n">lastname</span><span class="p">,</span><span class="n">firstname</span><span class="p">,</span><span class="n">job</span><span class="o">-</span><span class="n">title</span><span class="p">,</span><span class="n">email</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="n">sample.csv</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">csvcut</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="n">lastname</span><span class="p">,</span><span class="n">firstname</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="w"> </span><span class="n">sample.csv</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">csvcut</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="w"> </span><span class="n">sample.csv</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can add the csvsort command to sort the output by a field. We’re using the <code class="language-plaintext highlighter-rouge">-c</code> (column) option to specify the column to sort by, and the <code class="language-plaintext highlighter-rouge">-r</code> (reverse) option to sort in descending order.</p>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">csvcut</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="w"> </span><span class="n">sample2.csv</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">csvsort</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">-</span><span class="n">r</span><span class="w">
+</span></code></pre></div></div>
+
+<p>To make the output prettier we can feed it through csvlook.</p>
+
+<div class="language-s highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">csvcut</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="w"> </span><span class="n">sample2.csv</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">csvsort</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">-</span><span class="n">r</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">csvlook</span><span class="w">
+</span></code></pre></div></div>
+
+<p>A neat touch is that, even though the records are sorted, the header line with the field names is kept as the first line. Once we’re happy we have the data the way we want it we can remove the csvlook from the command chain, and create a new CSV file by redirecting the output into a file.</p>]]></content><author><name>Jawed Salim</name></author><category term="Linux" /><category term="bash" /><category term="csv" /><summary type="html"><![CDATA[Setup chatwoot on kubernetes cluster using helm chart]]></summary></entry><entry><title type="html">Deploy Chatwoot using Helm Chart</title><link href="http://localhost:4000/post/deploy-chatwoot-using-helm-chart.html" rel="alternate" type="text/html" title="Deploy Chatwoot using Helm Chart" /><published>2022-07-15T09:05:58+05:30</published><updated>2022-07-15T09:05:58+05:30</updated><id>http://localhost:4000/post/deploy-chatwoot-using-helm-chart</id><content type="html" xml:base="http://localhost:4000/post/deploy-chatwoot-using-helm-chart.html"><![CDATA[<p>Chatwoot is an open-source, self-hosted customer engagement suite. Chatwoot lets you view and manage your customer data, 
 communicate with them irrespective of which medium they use, and re-engage them based on their profile.</p>
 
 <p>For more info., <a href="https://www.chatwoot.com/">visit site</a></p>

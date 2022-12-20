@@ -17,6 +17,10 @@
 <lastmod>2022-07-15T09:05:58+05:30</lastmod>
 </url>
 <url>
+<loc>http://localhost:4000/post/parse-csv-data-in-bash.html</loc>
+<lastmod>2022-10-02T20:34:58+05:30</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/about.html</loc>
 </url>
 <url>
@@ -54,5 +58,14 @@
 </url>
 <url>
 <loc>http://localhost:4000/tag/kubernetes/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/tag/linux/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/tag/bash/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/tag/csv/</loc>
 </url>
 </urlset>
