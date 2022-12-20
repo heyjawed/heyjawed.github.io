@@ -16,8 +16,11 @@ Assuming you have already the basic understanding of [Git workflow](https://docs
 
 You might say, **"It's just a personal project."** Yes, you work alone now, but what happens when you work with a team or contribute to open source?
 
-Have you ever tried running `git log` on one of your old projects to see the **"weird"** commit messages you have used since its inception? It can be hard to understand **what** you have changed in past and **why** you made those changes in the past.
-For example - `'Fix style' 6 months ago` # "yep....even you don't have the absolute idea about this commit"
+Have you ever tried running `git log` on one of your old projects to see the **"weird"** commit messages you have used since its inception? 
+It can be hard to understand **what** you have changed in past and **why** you made those changes in the past.
+
+For example - `'Fix style' 6 months ago` 
+> "yep....even you don't have the absolute idea about this commit"
 
 Commit messages can adequately communicate why a change was made, and understanding that makes development and collaboration more efficient.
 
